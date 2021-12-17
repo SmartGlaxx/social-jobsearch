@@ -1,0 +1,290 @@
+.posts{
+    width:100%;
+    position: relative
+}
+.postContainer{
+    background: var(--background-color-2);
+    min-height: 5rem;
+    width: auto;
+    position: relative;
+    padding: var(--input-padding);
+    margin : 0.5rem 0;
+    box-shadow:
+    0px 14.3px 1.2px -7px rgba(0, 0, 0, 0.009),
+    0px 43px 51px -7px rgba(0, 0, 0, 0.07);
+}
+.name{
+    margin-left: 1rem;
+    font-size: 1.2rem;
+}
+.post-top{
+    display: flex;
+}
+.profile-pic{
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border : 0.2rem solid var(--color);
+    object-fit: cover;
+}
+.description{
+    min-height: 3rem;
+    padding : var(--section-padding);
+    font-size: 0.9rem;
+    color: var(--color2);
+}
+.shared-box-info{
+    font-size:  var(--header-font-size-4);
+}
+.shared-box{
+    min-height: 3rem;
+    padding : var(--section-padding);
+    background: var(--background-color-3);
+    color: var(--color2);
+    font-size:  var(--header-font-size-5);
+}
+.shared-description{
+    font-size: var(--header-font-size-2);
+    color: var(--color4);
+}
+.sharedname{
+    font-size: var(--header-font-size-4);
+}
+.more-btn{
+    padding: var(--btn-padding);
+    border : none;
+    /* border: 1px solid var(--color); */
+    border-radius: var(--btn-border-radius);
+    background: var(--background-color);
+    transition: all 0.4s;
+    cursor: pointer;
+}
+.more-btn:hover{
+    background: var(--background-color-2);
+}
+.icons-box{
+    display: flex;
+    width: 100%;
+}
+.icons-box-item{
+    display: flex;
+    flex: 6
+    /* margin: 0;
+    margin-right: var(--icon-li-padding); */
+}
+.icons-box-item2{
+    text-align: right;
+    margin-left: auto;
+    flex: 6
+    /* color:red;
+    background-color: green; */
+}
+.icon-thumbsup{
+    margin : 0 0.3rem;
+    color: var(--color2);
+    cursor: pointer;
+    transition: all 0.4s;
+    flex: 6
+}
+.icon-thumbsup-liked{
+    margin : 0 0.3rem;
+    color:#33f;
+    cursor: pointer;
+    transition: all 0.4s;
+}
+.icon-thumbsup-liked-alt{
+    margin : 0 0.3rem;
+    color : var(--background-color-2);
+    background : #33f;
+    padding: 0.3rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.4s;
+}
+.icon-thumbsup:hover{
+    transform: scale(1.2);
+}
+
+.icon-comment{
+    margin : 0 0.3rem;
+    color: var(--color2)
+}
+
+.comment-box-open{
+    display: block;
+    width : 100%;
+    background-color: var(--background-color);
+    transition: all 0.4s;
+    
+}
+.comment-box-close{
+    display: none;
+}
+.comment-input{
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--input-padding2);
+    border: 1px solid var(--color);
+    position: relative;
+}
+.comment-input:focus{
+    outline: none;
+}
+.users-comments{
+    padding: var(--section-padding);
+}
+.comment-main{
+    position: relative;
+    margin : 1rem 0;
+    padding: var(--section-padding-2);
+    background: var(--background-color-2);
+}
+.comment{
+    font-size: 1.05rem;
+    color : var(--color2)
+}
+.comment-username{
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.comment-timeago{
+    font-size: 0.8rem;
+}
+
+.submit-icon{
+    color: var(--color-success);
+    font-size: var(--icon-size2);
+}
+
+.more-options{
+    float : right
+}
+
+.options-box{
+    position: absolute;
+    top: 3rem;
+    right: 0;
+    padding : var(--section-padding);
+    background: var(--background-color-2);
+    box-shadow:
+    11.9px 20.1px 12.5px -12px rgba(0, 0, 0, 0.1),
+    19px 32px 69px -12px rgba(0, 0, 0, 0.071)
+  ;
+    z-index: 8
+    
+
+}
+.close-btn{
+    font-size: var(--icon-size2);
+    color: var(--color-close);
+    float: right;
+}
+.delete-box{
+    background: var(--background-color);
+    padding: var(--section-padding);
+}
+.backdrop{
+    display: grid;
+    place-items: center;
+    width: 100%; 
+    height: 100vh;
+    position: fixed;
+    top:0;
+    left : 0;
+    z-index: 11;
+    transition: all 0.7s;
+    background: rgba(53, 56, 54, 0.7);
+
+}
+
+.comment-icons{
+    float: right
+}
+
+.update-icon{
+    color : var(--color2);
+}
+.trash-icon{
+    color: var(--color2);
+
+}
+
+.icon-btn{
+    background: inherit;
+    border: none;
+    margin : var(--btn-margin);
+    width: 1.2rem
+}
+
+.share-box{  
+    width: 100%; 
+    height: 100vh;
+    position: fixed;
+    top:0;
+    left : 0;
+    z-index: 11;
+    transition: all 0.7s;
+    background: rgba(53, 56, 54, 0.7);
+    padding-top: 10rem;
+}
+
+.share-box-inner{
+    width: 20rem;
+    margin:0 auto;
+    display: flex;
+    justify-content: space-around;
+}
+.shared-item{
+    margin-top: var(--section-padding);
+    min-height: 5rem;
+    overflow: auto;
+}
+.share-input{
+    border-radius: var(--box-border-radius);
+    width: 100%;
+    min-height: 15rem;
+    position: relative;
+    background:var(--background-color-2);
+    padding : 0.1rem;
+    padding: var(--section-padding);
+}
+
+.shared-content{
+    padding : var(--input-padding);
+    font-size: var(--header-font-size-4);
+}
+
+.share-input-box{
+    box-sizing: border-box;
+    width: 100%;
+    height: 5rem;
+    padding: 0.2rem;
+    border: 1px solid var(--color);
+    position: relative;
+}
+.share-input-box:focus{
+    outline: none;
+}
+
+.share-btn{
+    float: right;
+}
+
+.title2{
+    color:var(--color2);
+    font-size: var(--header-font-size-2);
+    text-align: center;
+    position: absolute;
+    top: var(--section-padding);
+    left : 50%;
+    transform: translateX(-50%);
+}
+
+
+@media screen and (max-width : 450px ){
+    .share-box-inner{
+        width: 95%;
+
+     }
+}

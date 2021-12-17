@@ -1,0 +1,4 @@
+.error{
+    padding:var(--page-padding);
+    background: red;
+}

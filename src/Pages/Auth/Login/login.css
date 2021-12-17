@@ -1,0 +1,83 @@
+.login{
+    display: flex;
+    padding: var(--page-padding);
+    height: 100vh;
+}
+.login-left, .login-right{
+    display: grid;
+    padding-top: var(--page-padding);
+    align-items: center;
+    justify-content: center;
+    height: 100%
+}
+.input{
+    display: block;
+    margin: var(--input-margin);
+    padding: var(--input-padding2);
+    width: auto
+}
+.input:focus{
+    outline: none;
+}
+.title{
+    font-size: var(--page-title1);
+    color: var(--color);
+}
+.btn{
+    float:right;
+}
+.page-title{
+    text-align: center;
+    color: var(--color);
+}
+
+.errorNotice{
+    display: flex;
+    position: absolute;
+    border: var(--error-border);
+    font-size: var(--error-font-size);
+    top: 40%;
+    width: var(--error-width);
+    height: var(--error-height);
+    background: var(--error-background);
+    color: var(--error-color);
+    box-shadow: var(--error-shadow);
+    text-align: center;
+    padding: var(--error-padding);
+    justify-content: center;
+    align-items: center;
+}
+.forgot-password{
+    font-size: var(--small-font1);
+    color: var(--warning-text);
+    cursor: pointer;
+}
+
+.forgot-password:hover{
+    text-decoration-style: bold;
+}
+.signup{
+    font-size: var(--small-font1);
+}
+.errorNotice{
+    display: flex;
+    position: absolute;
+    border: var(--error-border);
+    font-size: var(--error-font-size);
+    top: 40%;
+    width: var(--error-width);
+    height: var(--error-height);
+    background: var(--error-background);
+    color: var(--error-color);
+    box-shadow: var(--error-shadow);
+    text-align: center;
+    padding: var(--error-padding);
+    justify-content: center;
+    align-items: center;
+}
+
+@media screen and (max-width : 600px){
+    .login-left{
+        height: 1rem
+    }
+}
