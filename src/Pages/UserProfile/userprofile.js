@@ -38,6 +38,11 @@ const [profilePicturePreview, setProfilePicturePreview] = useState('')
 const [previewBox, setPreviewBox] = useState(false)
 // const [imageValue, setProfilePicture] = useState('')
 
+const [page, setPage] = useState(0)
+const [timeline, setTimeline] = useState([])
+const [arrayofArrayList, setArrayofArrayList] = useState([])
+
+
 const setValues = (e)=>{
     setFormValue(e.target.value)
 }
@@ -289,11 +294,47 @@ const submit = async(e)=>{
         }
 }
 
-// console.log("data now",timelineposts)
+
+//Pagination
+//create pagination to break timelineposts which
+//would be a huge array into smaller bits of 
+//arrays containing arrays. That way, when you
+//access an array, it'll show a specific number
+//of items n a page(You choose 10 items oer page)
+
+const paginate = (value)=>{
+
+    const itemsPerPage = 10
+    const numberOfPages = Math.ceil(value.length / itemsPerPage)
+
+
+    const newArray = Array.from({length : numberOfPages},(_, index)=>{
+        const startNum = index * itemsPerPage
+        return value.slice(startNum, startNum + itemsPerPage)
+
+    })
+    return newArray
+
+}
+//call the paginate to use/ break-up the timelineposts
+//-paginate breaks the long array (timelineposts) down using the code above
+//-it creats an array of arrays called arrayOfArrays
+//-items in each page can now be accessed in the arrayOfArrays 
+//by using an index (called page) which can be altered using a button to change 
+//its default index from 0 to anu number  
+//the page should display new items when the page number is changed
+
+useEffect(()=>{
+    const arrayOfArrays = paginate(timelineposts)
+    setTimeline(arrayOfArrays[page])
+    setArrayofArrayList(arrayOfArrays)
+},[page, timelineposts])
+
+
 if(loggedIn == false){
     return window.location.href = '/login'
 }
-
+console.log(timeline)
 if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUser.followings){
     return <div style={{width: "100%",height : "100vh", 
     display: 'grid', placeItems: "center"}}>
@@ -302,7 +343,8 @@ if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUse
 }
 
 
-console.log('userProfilePicture', userProfilePicture)
+
+
 const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
 
 const firstLetter = username[0]
@@ -488,14 +530,14 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
             </div> 
             }
             <div className='profile-center-middle'>
-              {!timelineposts ?
+              {!timeline  ?
               <div style={{width: "100%",height : "100vh", 
               display: 'grid', placeItems: "center"}}>
                  <LoadingIcons.Puff       stroke="#555" strokeOpacity={.9} />
              </div> :
                 <>
                     {
-                    timelineposts.map(item =>{
+                    timeline.map(item =>{
                         const {id} = item
                         return <Posts key={id} {...item}/>
                     })
@@ -503,6 +545,13 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                 </>
               }   
             </div>
+            {
+                arrayofArrayList.map((item, i) =>{
+                    return <Button key={i} onClick={()=>setPage(i)}
+                    className= {i == page && `pagination-btn`}
+                    >{i + 1}</Button>
+                })
+            }
             </Grid>
 
             </Grid>

@@ -285,6 +285,15 @@
 .btn:hover{
     opacity: 1
 }
+.pagination-btn{
+    font-weight: 600;
+    cursor: pointer;
+    padding : var(--btn-padding-4);
+    width: 3rem;
+    border-radius: var(--btn-border-radius);
+    border:none;
+    opacity: 0.9;
+}
 
 .icons-box{
     margin: 0.3rem 0;
