@@ -113,8 +113,8 @@ const Posts =({_id : id, userId, username, description, likes, createdAt, shared
                 }
             }
             const result2 = await axios(options2)
-            const {data} = result2.data
-            const {likes} = data
+            const {fetchedPost} = result2.data
+            const {likes} = fetchedPost
             
             if(likes.includes(currentUserLikeId)){
                 setLikesCount(likes.length)

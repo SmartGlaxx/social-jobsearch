@@ -65,7 +65,6 @@ const initialState = {
     commentSent : false,
 
     testValue : false
-
 }
 
 export const AppProvider = ({children})=>{
@@ -82,7 +81,7 @@ export const AppProvider = ({children})=>{
 
     //FETCH TIME-LINE POSTS
     const fetchTimelinePosts = async(url)=>{
-        
+      
         const options = {
             url: url,
             method : "GET",
@@ -92,26 +91,25 @@ export const AppProvider = ({children})=>{
             }
         }
        // dispatch({type : LOADING, payload : true})
-    
+       
         const result = await Axios(options)
-        const {response, data} = result.data
-        if(response == 'Success'){
-            
-           const newTimelinePosts = data.sort((a,b)=>{
+        const {response, allPosts} = result.data
+        if(response == 'Success' && allPosts){
+           const newTimelinePosts = allPosts.sort((a,b)=>{
                return new Date(b.createdAt) - new Date(a.createdAt)
            })
             dispatch({type : TIMELINEPOSTS, payload : newTimelinePosts})
         }else if(response == 'Fail'){
-           // dispatch({type : LOADING, payload : false})
             dispatch({type: ALERT, payload : "An error occured"})
         }
         
     }
-
+    // console.log('joler ', state.timelineposts )
     // const checkeUser = state.currentUser
     
     // console.log(con._id)
    
+    
     //FETCH TIME-LINE POSTS USEEFFECT
     useEffect(()=>{
        
@@ -210,7 +208,7 @@ export const AppProvider = ({children})=>{
    }
 
    const fetchCurrentUser=async(userUrl)=>{
-       console.log(userUrl, 'fetch url')
+
     const options = {
         url: userUrl,
         method : "GET",

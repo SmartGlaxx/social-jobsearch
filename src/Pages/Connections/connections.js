@@ -42,43 +42,11 @@ const setValues = (value, data)=>{
 }
 
 let newUserConections  = []
-if(currentUserParsed){
+if(currentUserParsed.connections){
     newUserConections = currentUserParsed.connections
 }
 
 const {id, username} = useParams()
-
-//ACCEPT CONNECTION REQUEST FROM A USER
-const acceptRequest = async(value1, value2)=>{
-    const {_id : currentUserId, username : currentUserName} = JSON.parse(currentUser)
-    const options ={
-        url : `https://smart-job-search.herokuapp.com/api/v1/user/acceptconnectrequest/${value1}/${value2}`,
-        method : "PATCH",
-        headers : {
-           "Accept" : "Application/json",
-           "Content-Type" : "Application/json;charset=utf-8"
-        },
-        data :{
-            userId : currentUserId,
-            username : currentUserName
-        }
-    }
-    
-    const result = await axios(options)
-    const {response} = result.data
-    if(response == 'Success'){
-        const reponse_2 = await axios(getUserurl)
-        const {data} = reponse_2.data
-        
-        if(data){
-            // window.location.href='/' 
-            // setValues(true, data)
-            setTestValue(!testValue)
-        } 
-    }else{
-        setError({status : true, msg : "Failed to post comment"})
-    }
-}
 
 
 //CONNECTION REQUEST TO USER
@@ -101,23 +69,131 @@ const connectRequest =async(e, value1, value2)=>{
         } 
         
         const result = await axios(options)
-        console.log('result now', result)
-        // console.log('result now', result)
-        // if(result.data.response == "Success"){
-        //     const reponse_2 = await axios(getUserurl)
-        //     const {data} = reponse_2.data
-        //     if(data){
-        //         setTestValue(!testValue)
-        //         // window.location.href=`/userprofile/${_id}/${username}`
-        //         // setDataValues(true, data)
-        //     } 
-        // }else{
-        //     setAlertMsg({status : true, msg : 'An error occured while following'})  
-        // }       
+      
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                // window.location.href=`/userprofile/${_id}/${username}`
+                // setDataValues(true, data)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'Failed to send request from user'})  
+        }       
         
     // }
 
 }
+
+
+//ACCEPT CONNECTION REQUEST FROM A USER
+const acceptConnectRequest = async(e, value1, value2)=>{
+    e.preventDefault()
+    const {_id : currentUserId, username : currentUserName} = JSON.parse(currentUser)
+    const options ={
+        url : `https://smart-job-search.herokuapp.com/api/v1/user/acceptconnectrequest/${value1}/${value2}`,
+        method : "PATCH",
+        headers : {
+           "Accept" : "Application/json",
+           "Content-Type" : "Application/json;charset=utf-8"
+        },
+        data :{
+            userId : currentUserId,
+            username : currentUserName
+        }
+    }
+    
+    const result = await axios(options)
+    
+    const {response} = result.data
+    if(response == 'Success'){
+        const reponse_2 = await axios(getUserurl)
+        const {data} = reponse_2.data
+        
+        if(data){
+            // window.location.href='/' 
+            // setValues(true, data)
+            setTestValue(!testValue)
+        } 
+    }else{
+        setError({status : true, msg : "Failed to accept request from user"})
+    }
+}
+
+
+//DECLINE CONNECTION REQUEST FROM A USER
+const declineConnectRequest = async(e, value1, value2)=>{
+    e.preventDefault()
+    const {_id : currentUserId, username : currentUserName} = JSON.parse(currentUser)
+    const options ={
+        url : `https://smart-job-search.herokuapp.com/api/v1/user/declineconnectrequest/${value1}/${value2}`,
+        method : "PATCH",
+        headers : {
+           "Accept" : "Application/json",
+           "Content-Type" : "Application/json;charset=utf-8"
+        },
+        data :{
+            userId : currentUserId,
+            username : currentUserName
+        }
+    }
+    
+    const result = await axios(options)
+    
+    const {response} = result.data
+    if(response == 'Success'){
+        const reponse_2 = await axios(getUserurl)
+        const {data} = reponse_2.data
+        
+        if(data){
+            // window.location.href='/' 
+            // setValues(true, data)
+            setTestValue(!testValue)
+        } 
+    }else{
+        setError({status : true, msg : "Failed to decline request from user"})
+    }
+}
+
+
+//DISCONNECTION REQUEST TO USER
+const disconnectRequest =async(e, value1, value2)=>{
+    e.preventDefault()
+    
+    const {_id , username} = currentUserParsed
+   
+        const options = {
+            url : `https://smart-job-search.herokuapp.com/api/v1/user/disconnectrequest/${value1}/${value2}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+        
+        const result = await axios(options)
+      
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                // window.location.href=`/userprofile/${_id}/${username}`
+                // setDataValues(true, data)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'Failed to disconnect from user'})  
+        }       
+        
+    // }
+
+}
+
 
 let randomStart = 0
 let randomEnd = 0
@@ -140,19 +216,29 @@ setRandomUsers(allUsers)
 },[allUsers])
 
 
-let userConnectionRequests = currentUserParsed.connectionRequests ? currentUserParsed.connectionRequests : []
+let userSentConnectionRequests = currentUserParsed.sentConnectionRequests ? currentUserParsed.sentConnectionRequests : []
+let userReceivedConnectionRequests = currentUserParsed.receivedConnectionRequests ? currentUserParsed.receivedConnectionRequests : []
 let userConnections = currentUserParsed.connections ? currentUserParsed.connections : []
 
-    const connectionRequestsArray =  allUsers.filter(user =>{
-        if(currentUserParsed.connectionRequests){
-            if(currentUserParsed.connectionRequests.includes(user._id)){
+console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequests, currentUserParsed)
+    const sentConnectionRequestsArray =  allUsers.filter(user =>{
+        if(currentUserParsed.sentConnectionRequests){
+            if(currentUserParsed.sentConnectionRequests.includes(user._id)){
                 return user
             }
-        }else{
-            return
-        }
-        
-        })
+            }else{
+                return
+            }
+    })
+    const receivedConnectionRequestsArray =  allUsers.filter(user =>{
+        if(currentUserParsed.receivedConnectionRequests){
+            if(currentUserParsed.receivedConnectionRequests.includes(user._id)){
+                return user
+            }
+            }else{
+                return
+            }
+    })
     const  connectionsArray =  allUsers.filter(user =>{
         if(currentUserParsed.connections){
             if(currentUserParsed.connections.includes(user._id)){
@@ -163,22 +249,23 @@ let userConnections = currentUserParsed.connections ? currentUserParsed.connecti
         }
         })        
 
-        console.log('connectionRequestsArray', connectionRequestsArray )
+        // console.log('connectionRequestsArray', connectionRequestsArray )
     return <>
     <Topbar />
     <Sidebar />
     <Backdrop />
     <Grid className='connections' container > 
-        <Grid className='connections-left' item sm={false} md={2} ></Grid> 
-            <Grid className='connections-center'  item md={10} > 
-            <h3>People you can connect with</h3>
+        <Grid className='connections-left' item xs ={false} sm={false} md={2} ></Grid> 
+            <Grid className='connections-center' xs={12} item sm={12} md={10} > 
+            <h2>Connections</h2>
+            <h4>People you can connect with</h4><br />
             <div className='connections-center-inner' >
             {
             tempAllUsers &&
             tempAllUsers.map(allUser => {
                 const {_id : id, username} = allUser
                 const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && !connections.includes(allUser._id)){
+                        if(allUser._id !== _id && !currentUserParsed.connections.includes(allUser._id) && !currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
                         return <div key={id} className='connetions-box'>
                             <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
                                 <img src={Profile} alt={username} className="connections-img"/>
@@ -186,8 +273,13 @@ let userConnections = currentUserParsed.connections ? currentUserParsed.connecti
                             <div className='connections-name'>{username}</div>
                             <form>
                                 <br/>
-                                {/* <div>{username}</div> */}
-                                <button onClick={(e)=>connectRequest(e, id, username)} className='connect-btn'>{ !newUserConections ? null : newUserConections.includes(allUser._id) ? `Disconnect` : `Connect`}</button>
+                                {/* {
+                                    !sentConnectionRequestsArray.includes(allUser._id) && !connectionsArray.includes(allUsers._id) && !receivedConnectionRequestsArray.includes(allUser._id) &&
+                                } */}
+                                <button onClick={(e)=>connectRequest(e, id, username)} className='connect-btn'>
+                                    { !currentUserParsed.sentConnectionRequests.includes(allUser._id) ? `Connect Request` : 
+                                    !currentUserParsed.receivedConnectionRequests.includes(allUser._id) ? `Cancel Request` : null}
+                                </button>
                             </form>
                         </div>
                         }
@@ -197,24 +289,84 @@ let userConnections = currentUserParsed.connections ? currentUserParsed.connecti
             <div className='button-nav'>
             <button className='more-btn' onClick={()=>setRandomUsers(allUsers)}>Find Random Users</button>
             </div>
-            <div>Connection Requests {userConnectionRequests.length}</div>
+            <h4> Received Connection Requests ({userReceivedConnectionRequests.length})</h4>
+            <br />
+        <div className='connections-center-inner' >
             {
-
-                connectionRequestsArray.map(user =>{
-                    const {_id, username, followers, followings, connections} = user
-                    return <><div>{username}</div><Button onClick={()=>acceptRequest(_id,username)}>Accept</Button>
-                    <Button>Decline</Button></>
+            tempAllUsers &&
+            tempAllUsers.map(allUser => {
+                const {_id : id, username} = allUser
+                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
+                        if(allUser._id !== _id && currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
+                        return <div key={id} className='connetions-box'>
+                            <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
+                                <img src={Profile} alt={username} className="connections-img"/>
+                            </Link>
+                            <div className='connections-name'>{username}</div>
+                            <form>
+                                <br/>
+                                <div className='connect-response'>
+                                <button onClick={(e)=>acceptConnectRequest(e, id, username)} className='connect-btn2'>
+                                    Accept
+                                </button>
+                                <button onClick={(e)=>declineConnectRequest(e, id, username)} className='connect-btn2'>
+                                    Decline
+                                </button>
+                                </div>
+                            </form>
+                        </div>
+                        }
                 })
             }
-            <div>Connections {connectionsArray.length}</div>
+            </div>
+             <h4> Sent Connection Requests ({userSentConnectionRequests.length})</h4>
+            <div className='connections-center-inner' >
             {
-
-                userConnections.map(user =>{
-                    //your connections here
-                    const {_id, username, followers, followings, connections} = user
-                    return <div>{username}</div>
+            tempAllUsers &&
+            tempAllUsers.map(allUser => {
+                const {_id : id, username} = allUser
+                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
+                        if(allUser._id !== _id && currentUserParsed.sentConnectionRequests.includes(allUser._id)){
+                        return <div key={id} className='connetions-box'>
+                            <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
+                                <img src={Profile} alt={username} className="connections-img"/>
+                            </Link>
+                            <div className='connections-name'>{username}</div>
+                            <form>
+                                <br/>
+                                <button onClick={(e)=>connectRequest(e, id, username)} className='connect-btn3'>
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                        }
                 })
             }
+            </div>
+            <h3>Connections ({connectionsArray.length})</h3>
+             <div className='connections-center-inner' >
+            {
+            tempAllUsers &&
+            tempAllUsers.map(allUser => {
+                const {_id : id, username} = allUser
+                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
+                        if(allUser._id !== _id && currentUserParsed.connections.includes(allUser._id)){
+                        return <div key={id} className='connetions-box'>
+                            <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
+                                <img src={Profile} alt={username} className="connections-img"/>
+                            </Link>
+                            <div className='connections-name'>{username}</div>
+                            <form>
+                                <br/>
+                                <button onClick={(e)=>disconnectRequest(e, id, username)} className='connect-btn3'>
+                                    Disconnect
+                                </button>
+                            </form>
+                        </div>
+                        }
+                })
+            }
+            </div>
             </Grid>
         </Grid>
         </>

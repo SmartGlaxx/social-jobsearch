@@ -81,9 +81,11 @@ if(loggedIn == false){
 if(loading || allUsers.length == 0){
     return <div style={{width: "100%",height : "100vh", 
     display: 'grid', placeItems: "center"}}>
-       <LoadingIcons.Puff       stroke="#555" strokeOpacity={.9} />
+       <LoadingIcons.Puff  stroke="#555" strokeOpacity={.9} />
    </div>
 }
+
+console.log('dsfdg timelineposts', timelineposts)
 
 
 

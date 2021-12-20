@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import './userprofile.css'
 import axios from 'axios'
 import { Grid } from '@material-ui/core'
-import { FaUserAlt, FaUsers, FaImages, FaExclamationCircle, FaHome, FaUser } from 'react-icons/fa'
+import { FaUserAlt, FaUsers, FaImages, FaExclamationCircle, FaHome, FaUser, FaCamera, FaEllipsisH } from 'react-icons/fa'
 import { Dummy } from '../dummy'
 import {Topbar, Sidebar, Backdrop, Posts} from '../../Components';
 import { UseAppContext } from '../../Contexts/app-context'
@@ -12,7 +12,7 @@ import {Redirect} from 'react-router-dom'
 import Axios from 'axios'
 import OtherUsers from '../../Components/OtherUsers/otherUsers'
 import LoadingIcons from 'react-loading-icons'
-import ProfileImage from '../../assets/profile.jfif'
+import ProfileImage from '../../assets/profile.jpg'
 import CoverImage from '../../assets/cover.jfif'
 import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
@@ -23,17 +23,92 @@ tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fe
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
 const {_id : userId, username : userUsername, followings, followers} = fetchedUser
+const {profilePicture : userProfilePicture} = currentUserParsed
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
 const unFollowurl = 'https://smart-job-search.herokuapp.com/api/v1/user/unfollow'
 const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
 const posturl = 'https://smart-job-search.herokuapp.com/api/v1/posts'
 // const [userClicked, setUserClicked] = useState(false)
 const [newPage, setNewPage] = useState(false)
+// const [timelineposts, setTimelinePosts] = useState([])
+const [profilePicture, setProfilePicture] = useState('')
 const [timelineposts, setTimelinePosts] = useState([])
+const [profileImage, setProfileImage] = useState('')
+const [profilePicturePreview, setProfilePicturePreview] = useState('')
+const [previewBox, setPreviewBox] = useState(false)
+// const [imageValue, setProfilePicture] = useState('')
 
 const setValues = (e)=>{
     setFormValue(e.target.value)
 }
+
+
+const setNewUserValues = (value)=>{
+    setPreviewBox(false)
+    setTestValue(value)
+}
+//upload image and return url 
+const uploadProfilePicture = async(value)=>{
+    const  url =`${posturl}/uploadprofileimage/${userId}/${username}`
+
+    const fd = new FormData()
+    fd.append("image", value, value.name)
+
+    const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadprofileimage/${userId}/${username}`, fd)
+    
+    const {src : imgSrc} = result.data.image
+    
+  const options = {
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createprofileimage/${userId}/${username}`,
+        method : "PATCH",
+        headers : {
+            "Accept" : "application/json",
+            "Content-Type" : "application/json;charset=UTF-8"
+        },
+        data : {
+            userId : userId,
+            username : username,
+            profilePicture : imgSrc
+        }
+    }
+
+    const result2 = await Axios(options)
+
+    const {response, message} = result2.data
+    
+    if(response == 'Success' && message){
+        setNewUserValues(message)
+    }else if(response == 'Fail'){
+       setError({status : true, msg : "Fialed to upload profile image"})
+       return setTimeout(()=>{
+            setError({status : false, msg :''})
+    }, 4000)
+    }
+}
+
+
+//select profile picture
+
+const selectPic = (e)=>{
+    e.preventDefault()
+    setProfileImage(e.target.files[0])
+}
+
+useEffect(()=>{
+    if(profileImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setProfilePicturePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(profileImage)
+        setPreviewBox(true)
+    }else{
+        return
+    }
+},[profileImage])
+
+
+
 
 // if(followings == undefined){
 //     followings = currentUser.followings    
@@ -87,10 +162,10 @@ function onUrlChange() {
     
         const result = await Axios(options)
 
-        const {response, data} = result.data
-        if(response == 'Success'){
+        const {response, allPosts} = result.data
+        if(response == 'Success' && allPosts){
             
-           const newTimelinePosts = data.sort((a,b)=>{
+           const newTimelinePosts = allPosts.sort((a,b)=>{
                return new Date(b.createdAt) - new Date(a.createdAt)
            })
            setTimelinePosts(newTimelinePosts)
@@ -106,7 +181,7 @@ function onUrlChange() {
 useEffect(()=>{
     fetchTimelinePosts(`${posturl}/${id}/${username}/timeline`)
 
-},[id, username, userClicked])
+},[id, username, userClicked, postcreated])
 
 const fetchUser = async(fetchurl)=>{
     const result = await axios(fetchurl)
@@ -119,6 +194,7 @@ const fetchUser = async(fetchurl)=>{
 const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
     setPostCreated(true)
+    setFormValue('')
     setTimeout(()=>{
         setPostCreated(false)
     }, 3000)
@@ -199,7 +275,7 @@ const submit = async(e)=>{
         const result = await Axios(options)
 
         const {data, response} = result.data
-       console.log(data)
+    //    console.log("data now",result)
         if(response === 'Success'){ 
             setPostData(true, "Your post has been submited")
             
@@ -213,7 +289,7 @@ const submit = async(e)=>{
         }
 }
 
-
+// console.log("data now",timelineposts)
 if(loggedIn == false){
     return window.location.href = '/login'
 }
@@ -225,6 +301,8 @@ if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUse
    </div>
 }
 
+
+console.log('userProfilePicture', userProfilePicture)
 const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
 
 const firstLetter = username[0]
@@ -245,23 +323,55 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
             
              <Grid className='profile-top'  item xs={12}> 
                 <img src ={CoverImage} alt='Cover Image' className='cover-image'/>
-                <div className='profile-img-box'>
-                    <img src={ProfileImage} alt='Profile Image' className='profile-img' />
-                <div className='profile-summary'> 
-                    <div>
-                        <h1>{usernameCpitalized}</h1>
-                        <div>{`Following : ${followings.length}`}</div>
-                        <div>{`Followers : ${followers.length}`}</div>
+                <Grid className='profile-img-box' container>
+                <Grid item xs={12} sm={3}>
+                   { <img src={userProfilePicture ? userProfilePicture : ProfileImage} alt='Profile Image' className='profile-img' />}
+                    {previewBox &&
+                    <div className='profile-img-preview-box'>
+                        <img src={profilePicturePreview} alt='Error loading preview' className='profile-img-preview'/>
+                        <Button onClick={()=>setPreviewBox(false)}>Cancel</Button>
+                        <Button onClick={()=>uploadProfilePicture(profileImage)}>Upload Picture</Button>
                     </div>
-                </div>
-                <div className='btn-box'>
+                    }
+                    <form className="label-box" enctype="multipart/form-data">
+                        <label htmlFor='profilePicture'  >
+                            <div className="label-box-inner">
+                                <FaCamera  className='img-upload-icon' size='30'/> 
+                          </div>
+                        <input id='profilePicture' type='file' name='profilePic' className='homepage-center-input2' 
+                        onChange={selectPic}/>
+                        </label>
+                        {/* <button className='post-btn' onClick={submit}>Post</button> */}
+                    </form>
+                    <div className='profile-summary-desktop'>
+                        <h1 className='username'>{usernameCpitalized}</h1>
+                        <div className='-followings'>{`Following : ${followings.length}`}</div>
+                        <div className='-followings'>{`Followers : ${followers.length}`}</div>
+                    </div>
+                </Grid>
+                <Grid className='profile-summary' item xs={12} sm={5}> 
+                    <div className='profile-summary-inner'>
+                        <h1 className='username'>{usernameCpitalized}</h1>
+                        <div className='-followings'>{`Following : ${followings.length}`}</div>
+                        <div className='-followings'>{`Followers : ${followers.length}`}</div>
+                    </div>
+                </Grid>
+                <Grid className='btn-box' item xs={12} sm={4}>
                     
                 { idCurrent == userId && usernameCurrent == userUsername ?
-                    <Button className='btn'>Edit Profile</Button> :
-                    <Button className='btn'>Send Message</Button>
+                    <Button className='btn'>Edit Profile</Button> :<>
+                    <div className='other-userbtn1'>
+                        <FaEllipsisH />
+                    </div>
+                    <div className='other-userbtn2'>
+                        <Button className='btn'>Follow</Button>
+                        <Button className='btn'>Connect</Button>
+                        <Button className='btn'>Send Message</Button>
+                    </div>
+                </>
                 }
-                </div>
-            </div>
+                </Grid>
+            </Grid>
             </Grid>
             
             <Grid className='profile-center-right' item sm={false} md={1} ></Grid>
@@ -309,7 +419,8 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                             <div className='follow-name'>{username}</div>
                             <form>
                                 <br/>
-                                <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>{newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>
+                                <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>
+                                    {newUserFollowings  && newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>
                             </form>
                         </div>
                      }
@@ -357,7 +468,8 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                     <FaUserAlt className='icon' size='30'/>
                     <input type='hidden' name='userId' />
                     <input type='hidden'  name='username'/>
-                    <input type='text' name='post-input' placeholder='Make a post' className='profile-center-input' 
+                   
+                     <input type='text' name='post-input' placeholder='Make a post' className='profile-center-input' 
                     value={formValue} onChange={setValues}/>
                 </div>     
                 {
