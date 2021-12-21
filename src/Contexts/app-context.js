@@ -8,7 +8,7 @@ ALERT='ALERT'; const ALLUSERS = "ALLUSERS"; const TEMPALLUSERS = 'TEMPALLUSERS';
 const SETCUSERFOLLOWINGS = "SETCUSERFOLLOWINGS"; const SETNEWTEMPUSER = 'SETNEWTEMPUSER'
 const POSTCREATED = 'POSTCREATED'; const SETSIDEBAR = 'SETSIDEBAR' ; const USERCLICKED = 'USERCLICKED';
 const SETFETCHEDUSER = 'SETFETCHEDUSER'; const COMMENTSENT = 'COMMENTSENT';
-const CURRENTUSERPARSED = 'CURRENTUSERPARSED' ; const TESTVALUE = 'TESTVALUE'
+const CURRENTUSERPARSED = 'CURRENTUSERPARSED' ; const TESTVALUE = 'TESTVALUE'; const LAZYLOADING = 'LAZYLOADING'
 
 
 const getLoggedIn = ()=>{
@@ -53,6 +53,7 @@ const initialState = {
     //page-context
     alert : {status : false, msg : ''},
     loading : false,
+    lazyLoading : false,
     sidebarOpen : false,
     timelineposts : [],
     allUsers : [],
@@ -63,7 +64,6 @@ const initialState = {
     fetchedUser : {},
 
     commentSent : false,
-
     testValue : false
 }
 
@@ -274,10 +274,14 @@ const setTestValue = (value)=>{
     dispatch({type : TESTVALUE, payload : value})
 }
 
+//SET LAZY-LOADING FOR POSTS
+const setLazyLoading = (value)=>{
+    dispatch({type : LAZYLOADING, payload : value})
+}
     return <AppContext.Provider value={{
-        ...state, setLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, setTempAllusers,
+        ...state, setLoading, setLazyLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, setTempAllusers,
         setPostCreated, openSidebar, setUserClicked, setFetchedUser, setTimelinePosts,
-        setCommentSent,    setTestValue
+        setCommentSent,  setTestValue
     }}>
     {children}
     </AppContext.Provider>

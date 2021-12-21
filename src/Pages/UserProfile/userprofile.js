@@ -18,7 +18,7 @@ import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
 
 const UserProfile =()=>{
-const {loggedIn, setLoading, loading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated,
+const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated,
 tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser, setTestValue, testValue} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
@@ -38,7 +38,8 @@ const [profilePicturePreview, setProfilePicturePreview] = useState('')
 const [previewBox, setPreviewBox] = useState(false)
 // const [imageValue, setProfilePicture] = useState('')
 
-const [page, setPage] = useState(0)
+let [page, setPage] = useState(0)
+let [incrementor, setIncrementor] = useState(1)
 const [timeline, setTimeline] = useState([])
 const [arrayofArrayList, setArrayofArrayList] = useState([])
 
@@ -304,13 +305,14 @@ const submit = async(e)=>{
 
 const paginate = (value)=>{
 
-    const itemsPerPage = 10
+    const itemsPerPage = 4
     const numberOfPages = Math.ceil(value.length / itemsPerPage)
 
 
     const newArray = Array.from({length : numberOfPages},(_, index)=>{
         const startNum = index * itemsPerPage
-        return value.slice(startNum, startNum + itemsPerPage)
+        const endNum = itemsPerPage * incrementor
+        return value.slice(startNum, endNum)
 
     })
     return newArray
@@ -328,13 +330,33 @@ useEffect(()=>{
     const arrayOfArrays = paginate(timelineposts)
     setTimeline(arrayOfArrays[page])
     setArrayofArrayList(arrayOfArrays)
-},[page, timelineposts])
+},[timelineposts, incrementor])
 
-
+//set an incrementor to increase everytime the documents total height
+//plus 50 is equal to the scrollY - scrolled vertical distance plus
+//the windows inner height or display height. Now use the incremented
+//value as the endpoint for the new set of documents in arrayOfArrays.
+//so the page remains on 0, while the start point remians on 1st array of 
+//page 0, and the endpoint extends with increase in the incrementor
+useEffect(()=>{
+    const fetchItems = ()=>{
+        if(window.scrollY + window.innerHeight >= document.body.scrollHeight - 50){
+            setLazyLoading(true)
+            setTimeout(()=>{
+                setIncrementor(incrementor++)
+                setLazyLoading(false)
+            },3000)
+            
+        }
+    }
+    const event = window.addEventListener('scroll', fetchItems)
+    return ()=> window.removeEventListener('scroll', event)
+},[])
+ 
 if(loggedIn == false){
     return window.location.href = '/login'
 }
-console.log(timeline)
+// console.log(timeline)
 if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUser.followings){
     return <div style={{width: "100%",height : "100vh", 
     display: 'grid', placeItems: "center"}}>
@@ -546,11 +568,7 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
               }   
             </div>
             {
-                arrayofArrayList.map((item, i) =>{
-                    return <Button key={i} onClick={()=>setPage(i)}
-                    className= {i == page && `pagination-btn`}
-                    >{i + 1}</Button>
-                })
+                lazyLoading && <h1>LOADING</h1>
             }
             </Grid>
 
