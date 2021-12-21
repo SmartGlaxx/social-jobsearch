@@ -23,8 +23,9 @@ const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, 
 tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser, setTestValue, testValue} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
-const {_id : userId, username : userUsername, followings, followers} = fetchedUser
-const {profilePicture : userProfilePicture, coverPicture : userCoverPicture} = currentUserParsed
+const {_id : userId, username : userUsername, followings, followers, 
+    profilePicture : userProfilePicture, coverPicture : userCoverPicture} = fetchedUser
+// const {profilePicture : userProfilePicture, coverPicture : userCoverPicture} = currentUserParsed
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
 const unFollowurl = 'https://smart-job-search.herokuapp.com/api/v1/user/unfollow'
 const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
@@ -541,8 +542,7 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                 <div className='profile-center-inner-left-2'>
                     <h3>My Bio</h3>
                     <h4>Description here</h4>
-                    { 
-                        id == userId && username == userUsername &&
+                    { idCurrent == userId && usernameCurrent == userUsername &&
                      <><Button className='bio-btn'>Edit Bio</Button><br/></>
                     }
                     <div className='icons-box'>
@@ -606,7 +606,8 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                             <div className='follow-name'>{username}</div>
                             <form>
                                 <br/>
-                                <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>{ newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>
+                                {  allUser._id != currentUserParsed._id  &&
+                                    <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>{ newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>}
                             </form>
                         </div>
                      }
