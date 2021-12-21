@@ -16,6 +16,7 @@ import ProfileImage from '../../assets/profile.jpg'
 import CoverImage from '../../assets/cover.jfif'
 import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
+import { Timeline } from '@material-ui/icons'
 
 const UserProfile =()=>{
 const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated,
@@ -340,7 +341,7 @@ useEffect(()=>{
 //page 0, and the endpoint extends with increase in the incrementor
 useEffect(()=>{
     const fetchItems = ()=>{
-        if(window.scrollY + window.innerHeight >= document.body.scrollHeight - 50){
+        if(window.scrollY + window.innerHeight >= document.body.scrollHeight - 2){
             setLazyLoading(true)
             setTimeout(()=>{
                 setIncrementor(incrementor++)
@@ -568,7 +569,10 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
               }   
             </div>
             {
-                lazyLoading && <h1>LOADING</h1>
+                lazyLoading &&  (timelineposts.length > arrayofArrayList.length) && <div style={{width: "100%",height : "6rem", 
+                display: 'grid', placeItems: "center"}}>
+                    <LoadingIcons.Puff  stroke="#555" strokeOpacity={.9} />
+                </div>
             }
             </Grid>
 

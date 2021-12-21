@@ -125,6 +125,10 @@
     background: red;
 }
 
+.lazyloader{
+    display: grid;
+    align-items: center;
+}
 
 
 @media screen and (max-width : 600px){

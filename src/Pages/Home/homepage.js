@@ -12,11 +12,16 @@ import LoadingIcons from 'react-loading-icons'
 import Button from '@restart/ui/esm/Button'
 
 const HomePage =()=>{
-const {loggedIn, loading, currentUser,timelineposts, allUsers, postcreated, setPostCreated} = UseAppContext()
+const {loggedIn, loading, setLazyLoading, lazyLoading, currentUser,timelineposts, allUsers, postcreated, setPostCreated} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
 const {_id , username} = JSON.parse(currentUser)
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
+
+let [page, setPage] = useState(0)
+let [incrementor, setIncrementor] = useState(1)
+const [timeline, setTimeline] = useState([])
+const [arrayofArrayList, setArrayofArrayList] = useState([])
 
 const setValues = (e)=>{
     setFormValue(e.target.value)
@@ -73,6 +78,63 @@ const submit = async(e)=>{
             }, 4000)
         }
 }
+
+//Pagination
+//create pagination to break timelineposts which
+//would be a huge array into smaller bits of 
+//arrays containing arrays. That way, when you
+//access an array, it'll show a specific number
+//of items n a page(You choose 10 items oer page)
+
+const paginate = (value)=>{
+
+    const itemsPerPage = 4
+    const numberOfPages = Math.ceil(value.length / itemsPerPage)
+
+
+    const newArray = Array.from({length : numberOfPages},(_, index)=>{
+        const startNum = index * itemsPerPage
+        const endNum = itemsPerPage * incrementor
+        return value.slice(startNum, endNum)
+
+    })
+    return newArray
+
+}
+//call the paginate to use/ break-up the timelineposts
+//-paginate breaks the long array (timelineposts) down using the code above
+//-it creats an array of arrays called arrayOfArrays
+//-items in each page can now be accessed in the arrayOfArrays 
+//by using an index (called page) which can be altered using a button to change 
+//its default index from 0 to anu number  
+//the page should display new items when the page number is changed
+
+useEffect(()=>{
+    const arrayOfArrays = paginate(timelineposts)
+    setTimeline(arrayOfArrays[page])
+    setArrayofArrayList(arrayOfArrays)
+},[timelineposts, incrementor])
+
+//set an incrementor to increase everytime the documents total height
+//plus 50 is equal to the scrollY - scrolled vertical distance plus
+//the windows inner height or display height. Now use the incremented
+//value as the endpoint for the new set of documents in arrayOfArrays.
+//so the page remains on 0, while the start point remians on 1st array of 
+//page 0, and the endpoint extends with increase in the incrementor
+useEffect(()=>{
+    const fetchItems = ()=>{
+        if(window.scrollY + window.innerHeight >= document.body.scrollHeight - 2){
+            setLazyLoading(true)
+            setTimeout(()=>{
+                setIncrementor(incrementor++)
+                setLazyLoading(false)
+            },3000)
+            
+        }
+    }
+    const event = window.addEventListener('scroll', fetchItems)
+    return ()=> window.removeEventListener('scroll', event)
+},[])
 
 if(loggedIn == false){
     return window.location.href = '/login'
@@ -140,12 +202,12 @@ console.log('dsfdg timelineposts', timelineposts)
                 </div>     
             </div>    
             <div className='homepage-center-middle'>
-              {!timelineposts ? 
+              {!timeline ? 
                 <div style={{width: "100%",height : "100vh", 
                 display: 'grid', placeItems: "center"}}>
                     <LoadingIcons.Puff       stroke="#555" strokeOpacity={.9} />
                 </div> :
-                timelineposts.length == 0 ? <>
+                timeline.length == 0 ? <>
                 <h3>No posts yet. Follow other users and create posts</h3> 
                     <OtherUsers />
                 <h4>People you may know</h4> 
@@ -154,13 +216,19 @@ console.log('dsfdg timelineposts', timelineposts)
                 <>
                 <OtherUsers />
                 {
-                  timelineposts.map(item =>{
+                  timeline.map(item =>{
                     //   const {_id} = item
                       return <Posts key={item._id} {...item}/>
                   })
                 }
                 </>
               }   
+            {
+                lazyLoading && <div style={{width: "100%",height : "6rem", 
+                display: 'grid', placeItems: "center"}}>
+                    <LoadingIcons.Puff  stroke="#555" strokeOpacity={.9} />
+                </div>
+            }
             </div>
         </Grid>
         <Grid className='homepage-right' item xs={false} sm={3} >
