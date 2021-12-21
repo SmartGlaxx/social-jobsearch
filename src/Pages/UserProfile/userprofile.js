@@ -13,7 +13,7 @@ import Axios from 'axios'
 import OtherUsers from '../../Components/OtherUsers/otherUsers'
 import LoadingIcons from 'react-loading-icons'
 import ProfileImage from '../../assets/profile.jpg'
-import CoverImage from '../../assets/cover.jfif'
+import CoverImage from '../../assets/coverpic.jpg'
 import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
 import { Timeline } from '@material-ui/icons'
@@ -24,7 +24,7 @@ tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fe
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
 const {_id : userId, username : userUsername, followings, followers} = fetchedUser
-const {profilePicture : userProfilePicture} = currentUserParsed
+const {profilePicture : userProfilePicture, coverPicture : userCoverPicture} = currentUserParsed
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
 const unFollowurl = 'https://smart-job-search.herokuapp.com/api/v1/user/unfollow'
 const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
@@ -34,9 +34,13 @@ const [newPage, setNewPage] = useState(false)
 // const [timelineposts, setTimelinePosts] = useState([])
 const [profilePicture, setProfilePicture] = useState('')
 const [timelineposts, setTimelinePosts] = useState([])
+const [coverImage, setCoverImage] = useState('')
 const [profileImage, setProfileImage] = useState('')
+const [coverPicturePreview, setCoverPicturePreview] = useState('')
 const [profilePicturePreview, setProfilePicturePreview] = useState('')
-const [previewBox, setPreviewBox] = useState(false)
+const [profilereviewBox, setProfilereviewBox] = useState(false)
+const [profilePreviewBox, setProfilePreviewBox] = useState(false)
+const [coverPreviewBox, setCoverPreviewBox] = useState(false)
 // const [imageValue, setProfilePicture] = useState('')
 
 let [page, setPage] = useState(0)
@@ -49,12 +53,57 @@ const setValues = (e)=>{
     setFormValue(e.target.value)
 }
 
-
-const setNewUserValues = (value)=>{
-    setPreviewBox(false)
+const setUserCoverPicture = (value)=>{
+    setCoverPreviewBox(false)
     setTestValue(value)
 }
-//upload image and return url 
+
+const setUserProfilePicture = (value)=>{
+    setProfilePreviewBox(false)
+    setTestValue(value)
+}
+
+//upload cover image and return url 
+
+const uploadCoverPicture = async(value)=>{
+    const  url =`${posturl}/uploadprofileimage/${userId}/${username}`
+
+    const fd = new FormData()
+    fd.append("image", value, value.name)
+
+    const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadcoverimage/${userId}/${username}`, fd)
+    
+    const {src : imgSrc} = result.data.image
+    
+  const options = {
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createimage/${userId}/${username}`,
+        method : "PATCH",
+        headers : {
+            "Accept" : "application/json",
+            "Content-Type" : "application/json;charset=UTF-8"
+        },
+        data : {
+            userId : userId,
+            username : username,
+            coverPicture : imgSrc
+        }
+    }
+
+    const result2 = await Axios(options)
+
+    const {response, message} = result2.data
+    
+    if(response == 'Success' && message){
+        setUserCoverPicture(message)
+    }else if(response == 'Fail'){
+       setError({status : true, msg : "Fialed to upload profile image"})
+       return setTimeout(()=>{
+            setError({status : false, msg :''})
+    }, 4000)
+    }
+}
+
+//upload profile image and return url 
 const uploadProfilePicture = async(value)=>{
     const  url =`${posturl}/uploadprofileimage/${userId}/${username}`
 
@@ -62,11 +111,11 @@ const uploadProfilePicture = async(value)=>{
     fd.append("image", value, value.name)
 
     const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadprofileimage/${userId}/${username}`, fd)
-    
+    console.log(result)
     const {src : imgSrc} = result.data.image
     
   const options = {
-        url: `https://smart-job-search.herokuapp.com/api/v1/user/createprofileimage/${userId}/${username}`,
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createimage/${userId}/${username}`,
         method : "PATCH",
         headers : {
             "Accept" : "application/json",
@@ -79,12 +128,13 @@ const uploadProfilePicture = async(value)=>{
         }
     }
 
+    
     const result2 = await Axios(options)
 
     const {response, message} = result2.data
     
     if(response == 'Success' && message){
-        setNewUserValues(message)
+        setUserProfilePicture(message)
     }else if(response == 'Fail'){
        setError({status : true, msg : "Fialed to upload profile image"})
        return setTimeout(()=>{
@@ -94,12 +144,31 @@ const uploadProfilePicture = async(value)=>{
 }
 
 
-//select profile picture
+//select cover pic
+const selectCoverPic = (e)=>{
+    e.preventDefault()
+    setCoverImage(e.target.files[0])
+}
 
-const selectPic = (e)=>{
+//select profile picture
+const selectProfilePic = (e)=>{
     e.preventDefault()
     setProfileImage(e.target.files[0])
 }
+
+useEffect(()=>{
+    if(coverImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setCoverPicturePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(coverImage)
+        setCoverPreviewBox(true)
+        setProfilePreviewBox(false)
+    }else{
+        return
+    }
+},[coverImage])
 
 useEffect(()=>{
     if(profileImage){
@@ -108,7 +177,8 @@ useEffect(()=>{
             setProfilePicturePreview(fileReader.result)
         }
         fileReader.readAsDataURL(profileImage)
-        setPreviewBox(true)
+        setProfilePreviewBox(true)
+        setCoverPreviewBox(false)
     }else{
         return
     }
@@ -387,25 +457,47 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
             <Grid className='profile-center-left' item sm={false} md={1} ></Grid>
             
              <Grid className='profile-top'  item xs={12}> 
-                <img src ={CoverImage} alt='Cover Image' className='cover-image'/>
+                {/* <img src = {CoverImage} alt='Cover Image' className='cover-image'/> */}
+                { <img src={userCoverPicture ? userCoverPicture : CoverImage} alt='Cover Image' className='cover-image' />}
+                {coverPreviewBox && 
+                    <div className='cover-img-preview-box'>
+                        <img src={coverPicturePreview} alt='Error loading preview' className='cover-img-preview'/>
+                        <div className='pic-upload-btn'>
+                            <Button onClick={()=>setCoverPreviewBox(false)}>Cancel</Button>
+                            <Button onClick={()=>uploadCoverPicture(coverImage)}>Upload Picture</Button>
+                        </div>
+                    </div>
+                    }
+                <form className="cover-label-box" enctype="multipart/form-data">
+                        {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='coverPicture'  >
+                            <div className="cover-label-box-inner" > 
+                                <FaCamera  className='img-upload-icon' size='30' /> 
+                          </div>
+                        <input id='coverPicture' type='file' name='coverPic' className='homepage-center-input2' 
+                        onChange={selectCoverPic}/>
+                        </label>}
+                        {/* <button className='post-btn' onClick={submit}>Post</button> */}
+                    </form>
                 <Grid className='profile-img-box' container>
                 <Grid item xs={12} sm={3}>
                    { <img src={userProfilePicture ? userProfilePicture : ProfileImage} alt='Profile Image' className='profile-img' />}
-                    {previewBox &&
+                    {profilePreviewBox && 
                     <div className='profile-img-preview-box'>
                         <img src={profilePicturePreview} alt='Error loading preview' className='profile-img-preview'/>
-                        <Button onClick={()=>setPreviewBox(false)}>Cancel</Button>
-                        <Button onClick={()=>uploadProfilePicture(profileImage)}>Upload Picture</Button>
+                        <div className='pic-upload-btn'>
+                            <Button onClick={()=>setProfilePreviewBox(false)}>Cancel</Button>
+                            <Button onClick={()=>uploadProfilePicture(profileImage)}>Upload Picture</Button>
+                        </div>
                     </div>
                     }
-                    <form className="label-box" enctype="multipart/form-data">
-                        <label htmlFor='profilePicture'  >
-                            <div className="label-box-inner">
+                    <form className="profile-label-box" enctype="multipart/form-data">
+                        {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='profilePicture'  >
+                            <div className="profile-label-box-inner">
                                 <FaCamera  className='img-upload-icon' size='30'/> 
                           </div>
                         <input id='profilePicture' type='file' name='profilePic' className='homepage-center-input2' 
-                        onChange={selectPic}/>
-                        </label>
+                        onChange={selectProfilePic}/>
+                        </label>}
                         {/* <button className='post-btn' onClick={submit}>Post</button> */}
                     </form>
                     <div className='profile-summary-desktop'>
