@@ -220,7 +220,7 @@ export const AppProvider = ({children})=>{
    
     const result = await Axios(options)
     const {response, data} = result.data
-        if(data){
+        if(response == "Success" && data){
             dispatch({type : CURRENTUSERPARSED , payload : data})
             //return window.location.href = '/'
         }else{
@@ -258,6 +258,7 @@ const setFetchedUser = (value)=>{
     dispatch({type : SETFETCHEDUSER, payload : value})
 }
 
+
 //TRIGGER COMMENT SENT
 const setCommentSent = (value)=>{
     dispatch({type : COMMENTSENT, payload : value})
@@ -279,9 +280,9 @@ const setLazyLoading = (value)=>{
     dispatch({type : LAZYLOADING, payload : value})
 }
     return <AppContext.Provider value={{
-        ...state, setLoading, setLazyLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, setTempAllusers,
-        setPostCreated, openSidebar, setUserClicked, setFetchedUser, setTimelinePosts,
-        setCommentSent,  setTestValue
+        ...state, setLoading, setLazyLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, 
+        setTempAllusers, setPostCreated, openSidebar, setUserClicked, setFetchedUser, 
+        setTimelinePosts, setCommentSent,  setTestValue
     }}>
     {children}
     </AppContext.Provider>

@@ -20,7 +20,8 @@ import { Timeline } from '@material-ui/icons'
 
 const UserProfile =()=>{
 const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated,
-tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser, setTestValue, testValue} = UseAppContext()
+tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser,
+ setTestValue, testValue} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
 const {_id : userId, username : userUsername, followings, followers, 
@@ -37,11 +38,15 @@ const [profilePicture, setProfilePicture] = useState('')
 const [timelineposts, setTimelinePosts] = useState([])
 const [coverImage, setCoverImage] = useState('')
 const [profileImage, setProfileImage] = useState('')
+const [postImage, setPostImage] = useState('')
 const [coverPicturePreview, setCoverPicturePreview] = useState('')
 const [profilePicturePreview, setProfilePicturePreview] = useState('')
-const [profilereviewBox, setProfilereviewBox] = useState(false)
-const [profilePreviewBox, setProfilePreviewBox] = useState(false)
+const [postPicturePreview, setPostPicturePreview] = useState('')
+// const [profilereviewBox, setProfilereviewBox] = useState(false)
 const [coverPreviewBox, setCoverPreviewBox] = useState(false)
+const [profilePreviewBox, setProfilePreviewBox] = useState(false)
+const [postPreviewBox, setPostPreviewBox] = useState(false)
+
 // const [imageValue, setProfilePicture] = useState('')
 
 let [page, setPage] = useState(0)
@@ -112,7 +117,7 @@ const uploadProfilePicture = async(value)=>{
     fd.append("image", value, value.name)
 
     const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadprofileimage/${userId}/${username}`, fd)
-    console.log(result)
+
     const {src : imgSrc} = result.data.image
     
   const options = {
@@ -157,6 +162,12 @@ const selectProfilePic = (e)=>{
     setProfileImage(e.target.files[0])
 }
 
+//select post pic
+const selectPostPic = (e)=>{
+    e.preventDefault()
+    setPostImage(e.target.files[0])
+}
+
 useEffect(()=>{
     if(coverImage){
         const fileReader = new FileReader()
@@ -166,6 +177,7 @@ useEffect(()=>{
         fileReader.readAsDataURL(coverImage)
         setCoverPreviewBox(true)
         setProfilePreviewBox(false)
+        setPostPreviewBox(false)
     }else{
         return
     }
@@ -180,10 +192,27 @@ useEffect(()=>{
         fileReader.readAsDataURL(profileImage)
         setProfilePreviewBox(true)
         setCoverPreviewBox(false)
+        setPostPreviewBox(false)
     }else{
         return
     }
 },[profileImage])
+
+
+useEffect(()=>{
+    if(postImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setPostPicturePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(postImage)
+        setPostPreviewBox(true)
+        setCoverPreviewBox(false)
+        setProfilePreviewBox(false)
+    }else{
+        return
+    }
+},[postImage])
 
 
 
@@ -198,7 +227,7 @@ const {id, username} = useParams()
 
 useEffect(()=>{
     fetchUser(`https://smart-job-search.herokuapp.com/api/v1/user/${id}/${username}`)
-},[id, username])
+},[id, username, testValue])
 
 
 // let lastUrl = window.location.href; 
@@ -271,6 +300,7 @@ const fetchUser = async(fetchurl)=>{
 
 const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
+    setPostPreviewBox(false)
     setPostCreated(true)
     setFormValue('')
     setTimeout(()=>{
@@ -329,12 +359,22 @@ const submit = async(e)=>{
     e.preventDefault()
     const {_id , username} = currentUserParsed
     const url = `https://smart-job-search.herokuapp.com/api/v1/posts`
-    if(!formValue){
-        setError({status : true, msg : "Pleae enter a text to post"})
-       return setTimeout(()=>{
-            setError({status : false, msg :''})
-        }, 4000)
-    }
+    if(postImage){    
+    // if(formValue){
+    //     setError({status : true, msg : "Pleae enter a text to post"})
+    //    return setTimeout(()=>{
+    //         setError({status : false, msg :''})
+    //     }, 4000)
+    // }
+
+    
+    const fd = new FormData()
+    fd.append("image", postImage, postImage.name)
+
+    const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/posts/uploadimage/${userId}/${username}`, fd)
+
+    const {src : imgSrc} = result.data.image
+        
         const options = {
             url: url,
             method : "POST",
@@ -345,26 +385,63 @@ const submit = async(e)=>{
             data:{
                 userId : _id,
                 username : username,
-                description : formValue
-                
+                description : formValue,
+                img : imgSrc
             }
         }
 
-        const result = await Axios(options)
-
-        const {data, response} = result.data
-    //    console.log("data now",result)
-        if(response === 'Success'){ 
+        const result2 = await Axios(options)
+        console.log("data now 2",result2)
+        const {response, newPost} = result2.data
+   
+        if(response === 'Success' && newPost){ 
             setPostData(true, "Your post has been submited")
-            
-            // return window.location.href = '/'
+            // setPostcreated(!postcreated)
         }else if(response === 'Fail'){
-            const {message} = result.data
-            setError({status : true, msg : message})
+            
+            // setError({status : true, msg : message})
             setTimeout(()=>{
                 setError({status : false, msg :''})
             }, 4000)
         }
+    }else{
+        if(!formValue){
+            setError({status : true, msg : "Pleae enter a text to post"})
+           return setTimeout(()=>{
+                setError({status : false, msg :''})
+            }, 4000)
+        }
+            const options = {
+                url: url,
+                method : "POST",
+                headers : {
+                    "Accept" : "application/json",
+                    "Content-Type" : "application/json;charset=UTF-8"
+                },
+                data:{
+                    userId : _id,
+                    username : username,
+                    description : formValue
+                    
+                }
+            }
+    
+            const result = await Axios(options)
+    
+            const {data, response} = result.data
+        //    console.log("data now",result)
+            if(response === 'Success'){ 
+                setPostData(true, "Your post has been submited")
+                
+                // return window.location.href = '/'
+            }else if(response === 'Fail'){
+                const {message} = result.data
+                setError({status : true, msg : message})
+                setTimeout(()=>{
+                    setError({status : false, msg :''})
+                }, 4000)
+            }
+    }
 }
 
 
@@ -437,7 +514,7 @@ if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUse
 }
 
 
-
+console.log( 'adsv ddd',userProfilePicture, fetchedUser)
 
 const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
 
@@ -606,7 +683,7 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                             <div className='follow-name'>{username}</div>
                             <form>
                                 <br/>
-                                {  allUser._id != currentUserParsed._id  &&
+                                {  allUser._id != currentUserParsed._id  && newUserFollowings &&
                                     <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>{ newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>}
                             </form>
                         </div>
@@ -623,7 +700,7 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
             { idCurrent == userId && usernameCurrent == userUsername &&
             <div className='profile-center-top' >
                 <div className='profile-center-top-inner'>
-                    <FaUserAlt className='icon' size='30'/>
+                { <img src={userProfilePicture ? userProfilePicture : ProfileImage} alt='Profile Image' className='profile-img-2' />}
                     <input type='hidden' name='userId' />
                     <input type='hidden'  name='username'/>
                    
@@ -634,16 +711,23 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                     error.status && <div className='errorNotice'><FaExclamationCircle />{error.msg}</div>
                 }   
                 <hr className='profile-center-top-hr'/>
+                    {postPreviewBox && 
+                    <div className='post-img-preview-box'>
+                        <img src={postPicturePreview} alt='Error loading preview' className='post-img-preview'/>
+                    </div>
+                    }
                 <div className='profile-center-top-inner2' >
-                    <label htmlFor='picture' >
+                {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='postPicture'  >
                         <div className="profile-center-input-item">
                             <FaImages className='profile-center-input-icon' size='30'/> Picture
                        </div>
-                     <input id='picture' type='file' className='profile-center-input2'/>
-                    </label>
+                     <input id='postPicture' type='file' name='postPic' className='profile-center-input2' 
+                        onChange={selectPostPic}/>
+                    </label>}
                     <button className='post-btn' onClick={submit}>Post</button>
                 </div>     
             </div> 
+           
             }
             <div className='profile-center-middle'>
               {!timeline  ?
