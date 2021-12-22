@@ -38,6 +38,7 @@ const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
     setPostPreviewBox(false)
     setPostCreated(true)
+    setFormValue('')
     setTimeout(()=>{
         setPostCreated(false)
     }, 3000)

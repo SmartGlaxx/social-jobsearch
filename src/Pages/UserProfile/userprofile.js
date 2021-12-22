@@ -18,16 +18,18 @@ import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
 import { Timeline } from '@material-ui/icons'
 
+
 const UserProfile =()=>{
-const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated,
-tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser,
- setTestValue, testValue} = UseAppContext()
+const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, 
+    postcreated, setPostCreated, tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, 
+    fetchedUser, setTestValue, testValue} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
 const {_id : userId, username : userUsername, followings, followers, 
     profilePicture : userProfilePicture, coverPicture : userCoverPicture} = fetchedUser
 // const {profilePicture : userProfilePicture, coverPicture : userCoverPicture} = currentUserParsed
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
+const followurl = 'https://smart-job-search.herokuapp.com/api/v1/user/follow'
 const unFollowurl = 'https://smart-job-search.herokuapp.com/api/v1/user/unfollow'
 const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
 const posturl = 'https://smart-job-search.herokuapp.com/api/v1/posts'
@@ -49,6 +51,7 @@ const [postPreviewBox, setPostPreviewBox] = useState(false)
 
 // const [imageValue, setProfilePicture] = useState('')
 
+//pagination constants
 let [page, setPage] = useState(0)
 let [incrementor, setIncrementor] = useState(1)
 const [timeline, setTimeline] = useState([])
@@ -227,7 +230,7 @@ const {id, username} = useParams()
 
 useEffect(()=>{
     fetchUser(`https://smart-job-search.herokuapp.com/api/v1/user/${id}/${username}`)
-},[id, username, testValue])
+},[postcreated, id, username, testValue])
 
 
 // let lastUrl = window.location.href; 
@@ -316,6 +319,48 @@ if(currentUserParsed){
      newUserFollowings = currentUserParsed.followings
 }
 
+//FOLLOW USER
+const follow =async(e, id, followedUsername)=>{
+    e.preventDefault()
+    const {_id , username} = JSON.parse(currentUser)
+   
+        const options = {
+            url: `${followurl}/${id}/${followedUsername}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+       
+        const result = await axios(options)
+        
+        if(result.data.response == "Success"){
+          
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            
+            if(data){
+                // window.location.href='/' 
+                // setValues(true, data)
+
+                setTestValue(!testValue)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'An error occured while following'})  
+        }       
+        
+    // }
+
+}
 
 
 
@@ -344,8 +389,10 @@ const unfollow =async(e, id, followedUsername)=>{
             const {data} = reponse_2.data
             if(data){
                 setTestValue(!testValue)
-                // window.location.href=`/userprofile/${_id}/${username}`
-                // setDataValues(true, data)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
             } 
         }else{
             setAlertMsg({status : true, msg : 'An error occured while following'})  
@@ -354,6 +401,84 @@ const unfollow =async(e, id, followedUsername)=>{
     // }
 
 }
+
+
+//CONNECTION REQUEST TO USER
+const connectRequest =async(e, value1, value2)=>{
+    e.preventDefault()
+    
+    const {_id , username} = currentUserParsed
+   
+        const options = {
+            url : `https://smart-job-search.herokuapp.com/api/v1/user/connectrequest/${value1}/${value2}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+        
+        const result = await axios(options)
+      
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                // window.location.href=`/userprofile/${_id}/${username}`
+                // setDataValues(true, data)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'Failed to send request from user'})  
+        }       
+        
+    // }
+
+}
+
+
+
+//DISCONNECTION REQUEST TO USER
+const disconnectRequest =async(e, value1, value2)=>{
+    e.preventDefault()
+    
+    const {_id , username} = currentUserParsed
+   
+        const options = {
+            url : `https://smart-job-search.herokuapp.com/api/v1/user/disconnectrequest/${value1}/${value2}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+        
+        const result = await axios(options)
+      
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                // window.location.href=`/userprofile/${_id}/${username}`
+                // setDataValues(true, data)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'Failed to disconnect from user'})  
+        }       
+        
+    // }
+
+}
+
 
 const submit = async(e)=>{
     e.preventDefault()
@@ -594,13 +719,23 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                 <Grid className='btn-box' item xs={12} sm={4}>
                     
                 { idCurrent == userId && usernameCurrent == userUsername ?
-                    <Button className='btn'>Edit Profile</Button> :<>
+                    <Button className='btn'>Edit Profile</Button> : 
+                    <>
                     <div className='other-userbtn1'>
                         <FaEllipsisH />
                     </div>
                     <div className='other-userbtn2'>
-                        <Button className='btn'>Follow</Button>
-                        <Button className='btn'>Connect</Button>
+                        {  !currentUserParsed.followings.includes(userId) ?
+                            <Button className='btn' onClick={(e)=>follow(e, userId, userUsername)}>Follow</Button>
+                        : <Button className='btn' onClick={(e)=>unfollow(e, userId, userUsername)}>Unfollow</Button>
+                        }
+                        { !currentUserParsed.connections.includes(userId) &&
+                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>
+                            { !currentUserParsed.sentConnectionRequests.includes(userId) ? `Connect Request` : 
+                            !currentUserParsed.receivedConnectionRequests.includes(userId) ? `Cancel Request` : null }
+                        </Button>}
+                    { currentUserParsed.connections.includes(userId) &&
+                    <Button className='btn' onClick={(e)=>disconnectRequest(e, userId, userUsername)}>Disconnect</Button>}
                         <Button className='btn'>Send Message</Button>
                     </div>
                 </>

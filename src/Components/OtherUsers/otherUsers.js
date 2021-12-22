@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 
 const OtherUsers = ()=>{
     const {loading, setNewCurrentUser, currentUser, currentUserParsed, setTempAllusers, tempAllUsers, allUsers, setLoading,
-        setUserClicked, userClicked, setTestValue, testValue} = UseAppContext()
+        setUserClicked, userClicked, setTestValue, testValue, setPostCreated} = UseAppContext()
     const {_id : userId, username : userUsername} = JSON.parse(currentUser)
     const followurl = 'https://smart-job-search.herokuapp.com/api/v1/user/follow'
     const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
@@ -55,7 +55,7 @@ const follow =async(e, id, followedUsername)=>{
         const result = await axios(options)
         
         if(result.data.response == "Success"){
-            console.log('followed now')
+          
             const reponse_2 = await axios(getUserurl)
             const {data} = reponse_2.data
             
@@ -64,6 +64,10 @@ const follow =async(e, id, followedUsername)=>{
                 // setValues(true, data)
 
                 setTestValue(!testValue)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
             } 
         }else{
             setAlertMsg({status : true, msg : 'An error occured while following'})  
