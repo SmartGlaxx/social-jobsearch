@@ -29,6 +29,28 @@
     float: right;
 }
 
+.post-img-preview-2{
+    margin-top: 40rem;
+    width: 20rem;
+    /* height: 20rem; */
+    /* margin : 0 auto; */
+    object-fit: cover;
+}
+
+.post-img-preview-box{
+    position: absolute;
+    left: 50%;
+    top: -15rem;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 15rem;
+    display: grid;
+    place-items: center;
+    background: gray;
+    z-index: 3;
+ 
+}
+
 @media screen and (max-width: 400px){
     .compose-center-form{
         width: 100%;

@@ -2,19 +2,36 @@ import './messages.css'
 import { Button, Grid } from "@material-ui/core"
 import { UseAppContext } from "../../Contexts/app-context"
 import { Topbar, Sidebar, Backdrop } from "../../Components"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Axios from 'axios'
+import { FaImages } from 'react-icons/fa'
+
 
 const ComposeMessages = () =>{
-const {currentUserParsed, allUsers} = UseAppContext()
+const {currentUserParsed, allUsers, setPostCreated} = UseAppContext()
 const [error, setError] = useState({status : false, msg:''})
-const {_id, username, connections} = currentUserParsed
+const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
+const [postPicturePreview, setPostPicturePreview] = useState('')
+const [postImage, setPostImage] = useState('')
+const [postPreviewBox, setPostPreviewBox] = useState(false)
 
+const {_id, username, connections} = currentUserParsed
 const [formData, setFormData] = useState({
     from : username,
     recipient : "",
     message : ""
 })
+
+const setPostData = (value1, value2)=>{
+    setAlertMsg({status : value1, msg : value2})
+    setPostPreviewBox(false)
+    setPostCreated(true)
+    setFormValue('')
+    console.log('sent')
+    setTimeout(()=>{
+        setPostCreated(false)
+    }, 3000)
+}
 
 const setFormValue = (e)=>{
     const name = e.target.name
@@ -24,6 +41,28 @@ const setFormValue = (e)=>{
         return {...prev, [name]: value}
     })
 }
+
+
+
+const selectPostPic = (e)=>{
+    e.preventDefault()
+    setPostImage(e.target.files[0])
+}
+
+
+useEffect(()=>{
+    if(postImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setPostPicturePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(postImage)
+        setPostPreviewBox(true)
+    }else{
+        return
+    }
+},[postImage])
+
 
 //SEND MESSAGE
 
@@ -36,45 +75,47 @@ const sendMessage = async(e)=>{
     
   
     const url = `https://smart-job-search.herokuapp.com/api/v1/messages/${recipientId}/${recipientUsername}`
- 
-    // if(postImage){        
-    // const fd = new FormData()
-    // fd.append("image", postImage, postImage.name)
 
-    // const result = await Axios.post(`https://smart-job-search.herokuapp.com/api/v1/posts/uploadimage/${_id}/${username}`, fd)
+    if(postImage){        
+    const fd = new FormData()
+    fd.append("image", postImage, postImage.name)
 
-    // const {src : imgSrc} = result.data.image
+    const result = await Axios.post(`https://smart-job-search.herokuapp.com/api/v1/messages/uploadmessageimage/${_id}/${username}`, fd)
+
+    const {src : imgSrc} = result.data.image
+
+        const options = {
+            url: url,
+            method : "POST",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                senderId : _id,
+                senderUsername : username,
+                receiverId : recipientId,
+                receiverUsername : recipientUsername,
+                message : formData.message,
+                img : imgSrc
+            }
+        }
+
+        const result2 = await Axios(options)
         
-    //     const options = {
-    //         url: url,
-    //         method : "POST",
-    //         headers : {
-    //             "Accept" : "application/json",
-    //             "Content-Type" : "application/json;charset=UTF-8"
-    //         },
-    //         data:{
-    //             userId : _id,
-    //             username : username,
-    //             description : formValue,
-    //             img : imgSrc
-    //         }
-    //     }
-
-    //     const result2 = await Axios(options)
-    //     console.log("data now 2",result2)
-    //     const {response, newPost} = result2.data
+        const {response, newPost} = result2.data
    
-    //     if(response === 'Success' && newPost){ 
-    //         setPostData(true, "Your post has been submited")
-    //         // setPostcreated(!postcreated)
-    //     }else if(response === 'Fail'){
+        if(response === 'Success' && newPost){ 
+            setPostData(true, "Your post has been submited")
+            // setPostcreated(!postcreated)
+        }else if(response === 'Fail'){
             
-    //         // setError({status : true, msg : message})
-    //         setTimeout(()=>{
-    //             setError({status : false, msg :''})
-    //         }, 4000)
-    //     }
-    // }else{
+            // setError({status : true, msg : message})
+            setTimeout(()=>{
+                setError({status : false, msg :''})
+            }, 4000)
+        }
+    }else{
         if(!formData){
             setError({status : true, msg : "Pleae enter a text to post"})
            return setTimeout(()=>{
@@ -99,20 +140,20 @@ const sendMessage = async(e)=>{
     
             const result = await Axios(options)
             console.log(result)
-        //     const {data, response} = result.data
-        // //    console.log("data now",result)
-        //     if(response === 'Success'){ 
-        //         setPostData(true, "Your post has been submited")
+            const {data, response} = result.data
+        //    console.log("data now",result)
+            if(response === 'Success'){ 
+                setPostData(true, "Your post has been submited")
                 
-        //         // return window.location.href = '/'
-        //     }else if(response === 'Fail'){
-        //         const {message} = result.data
-        //         setError({status : true, msg : message})
-        //         setTimeout(()=>{
-        //             setError({status : false, msg :''})
-        //         }, 4000)
-        //     }
-    // }
+                // return window.location.href = '/'
+            }else if(response === 'Fail'){
+                const {message} = result.data
+                setError({status : true, msg : message})
+                setTimeout(()=>{
+                    setError({status : false, msg :''})
+                }, 4000)
+            }
+    }
 }
 
     return <div>
@@ -152,6 +193,21 @@ const sendMessage = async(e)=>{
                 <Button  className='formbutton' onClick={sendMessage}>Send</Button>
             </form>
             </div>
+            <div className='homepage-center-top-inner2'>
+                 <label htmlFor='postPicture' >
+                        <div className="homepage-center-input-item">
+                            <FaImages className='homepage-center-input-icon' size='30'/> Picture
+                       </div>
+                     <input id='postPicture' type='file' name='postPic' className='homepage-center-input2' 
+                        onChange={selectPostPic}/>
+                    </label>
+                </div>  
+                {postPreviewBox && 
+                <div className='post-img-preview-box'>
+                    <img src={postPicturePreview} alt='Error loading preview' className='post-img-preview-2'/>
+                    <Button onClick={()=>setPostPreviewBox(false)}>Cancel</Button>
+                </div>
+                }
             </Grid>
             <Grid item xs={false} sm={2} className="compose-right">
             </Grid>
