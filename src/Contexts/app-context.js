@@ -168,11 +168,11 @@ export const AppProvider = ({children})=>{
 
     //FETCH ALL USERS USEEFFECT
     useEffect(()=>{
-        if(state.timelineposts.length == 0){
+        // if(state.timelineposts.length == 0){
                 fetchAllUsers(allUsersUrl) 
-        }
+        // }
        
-    },[])
+    },[state.testValue, state.postcreated])
 
     //FETCH ALL USERS WHEN MORE BUTTON IS CLICKED
     const setTempAllusers = (value)=>{

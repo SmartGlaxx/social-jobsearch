@@ -25,11 +25,12 @@
     --color3 : rgb(246, 246, 255);
     --color4 : #335;
     --color5 : #fff;
+    --color-alert : rgb(223, 5, 5);
     --color-close : rgb(236, 39, 39);
     --color-success : rgb(3, 145, 15);
     --error-background : rgba(230, 230, 230, 0.9);
     --error-border: 1px solid #888;
-    --error-color : rgb(236, 39, 39);;
+    --error-color : rgb(236, 39, 39);
     --error-font-size : 1rem;
     --error-width : 15rem;
     --error-padding : 0.6rem;
@@ -41,6 +42,7 @@
     --header-font-size-5 : 0.8rem;
     --header-section-padding: 0 1rem;
     --icon-li-padding : 1rem;
+    --icon-li-padding2 : 0.6rem;
     --icon-size1 : 1.8rem;
     --icon-size2 : 1.2rem;
     --icon-margin : 0 0.5rem;

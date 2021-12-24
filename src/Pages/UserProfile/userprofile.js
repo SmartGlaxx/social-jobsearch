@@ -725,16 +725,16 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                         <FaEllipsisH />
                     </div>
                     <div className='other-userbtn2'>
-                        {  !currentUserParsed.followings.includes(userId) ?
+                        {  currentUserParsed && !currentUserParsed.followings.includes(userId) ?
                             <Button className='btn' onClick={(e)=>follow(e, userId, userUsername)}>Follow</Button>
                         : <Button className='btn' onClick={(e)=>unfollow(e, userId, userUsername)}>Unfollow</Button>
                         }
-                        { !currentUserParsed.connections.includes(userId) &&
+                        { currentUserParsed && !currentUserParsed.connections.includes(userId) &&
                             <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>
                             { !currentUserParsed.sentConnectionRequests.includes(userId) ? `Connect Request` : 
                             !currentUserParsed.receivedConnectionRequests.includes(userId) ? `Cancel Request` : null }
                         </Button>}
-                    { currentUserParsed.connections.includes(userId) &&
+                    { currentUserParsed && currentUserParsed.connections.includes(userId) &&
                     <Button className='btn' onClick={(e)=>disconnectRequest(e, userId, userUsername)}>Disconnect</Button>}
                         <Button className='btn'>Send Message</Button>
                     </div>

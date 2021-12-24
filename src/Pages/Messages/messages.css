@@ -1,0 +1,37 @@
+.compose-center{
+    padding: var(--section-padding);
+    min-height: calc(100vh - 5rem);
+}
+.compose-center-inner{
+    display: grid;
+    place-items: center;
+}
+.compose-center-form{
+    width: 80%;
+    padding: 1rem;
+  
+}
+.forminput{
+    width:100%;
+    border: 1px solid var(--color);
+    background: var(--background-color-2);
+    padding: var(--input-padding2);
+    border-radius: 0.3rem;
+    margin: var(--input-margin);
+    box-sizing: border-box;
+    font-size: 1.1rem;
+}
+.forminput{
+    outline: none;
+}
+
+.formbutton{
+    float: right;
+}
+
+@media screen and (max-width: 400px){
+    .compose-center-form{
+        width: 100%;
+        padding: 0;
+    }
+}
