@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import './posts.css'
 import { Comments } from '../';
 import { Button, Grid } from '@material-ui/core'
-import Profile from "../../assets/profile.jfif"
+import ProfileImage from '../../assets/profile.jpg'
 import TimeAgo from 'timeago-react'
 import { useEffect, useState } from 'react'
 import {FaExclamationCircle, FaThumbsUp, FaComment, FaEllipsisH, FaShare, FaWindowClose, 
@@ -13,13 +13,16 @@ import { UseAppContext } from '../../Contexts/app-context'
 import { Backdrop } from '../'
 
 
-const Posts =({_id : id, userId, username, description, likes, createdAt, sharedDescription, sharedId, sharedUsername})=>{
-    const {timelineposts, currentUser, setPostCreated, commentSent, setCommentSent} = UseAppContext()
+const Posts =({_id : id, userId, username, description, likes, createdAt, sharedDescription, shareImg, sharedId, 
+    sharedUsername, img : postImage})=>{
+    const {timelineposts, currentUser, setPostCreated, postCreated,commentSent, 
+        setCommentSent, fetchedUser} = UseAppContext()
     const [readMoreValue, setReadMoreValue] = useState(false)
     const [error, setError] = useState({status : false, msg:''})
     const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
     const [liked, setLiked] = useState(false)
     const [likesCount, setLikesCount] = useState(likes.length)
+    const usersUrl = "https://smart-job-search.herokuapp.com/api/v1/user"
     const postsurl = 'https://smart-job-search.herokuapp.com/api/v1/posts'
     const commentsurl = 'https://smart-job-search.herokuapp.com/api/v1/comments'
     const [comments , setComments] = useState([])
@@ -35,9 +38,10 @@ const Posts =({_id : id, userId, username, description, likes, createdAt, shared
     const [showDeletePostDialog, setShowDeletePostDialog] = useState(false)
     const [shareForm, setShareForm] = useState(false)
     const [sharePostValue, setSharePostValue] = useState('')
-
+    const [fetchedUserData, setFetchedUserData] = useState({})
     const {_id : currentUserLikeId} = JSON.parse(currentUser)
 
+    const {profilePicture} = fetchedUserData
     const setFormForComment =()=>{
         setCommentForm(!commentForm)
         setShowUpdatePostForm(false)
@@ -56,28 +60,28 @@ const Posts =({_id : id, userId, username, description, likes, createdAt, shared
         }, 3000)
     }
   
-    //popover starts
-    // const useStyles = makeStyles((theme) => ({
-    //     typography: {
-    //       padding: theme.spacing(2),
-    //     },
-    //   }));
-
-    //   const classes = useStyles();
-    //   const [anchorEl, setAnchorEl] = React.useState(null);
-    
-    //   const handleClick = (event) => {
-    //     setAnchorEl(event.currentTarget);
-    //   };
-    
-    //   const handleClose = () => {
-    //     setAnchorEl(null);
-    //   };
-    
-    //   const open = Boolean(anchorEl);
-    //   const popOverId = open ? 'simple-popover' : undefined;
-    
-      //popover ends
+     //FETCH A USER
+     const fetchAUser = async(url)=>{
+        // dispatch({type : LOADING, payload : true})
+        await axios(url).then(result =>{
+        
+            const {response, data} = result.data
+            
+            if(response == 'Success' && data){
+                setFetchedUserData(data)
+              
+            }else if(response == 'Fail'){
+                //dispatch({type : LOADING, payload : false})
+                // dispatch({type: ALERT, payload : "An error occured fetching other users"})
+            }
+        })
+            
+        }
+    console.log(fetchedUserData.profilePicture,'sadsfd fetchedUserData')
+    //FETCH ALL USERS USEEFFECT
+    useEffect(()=>{
+        fetchAUser(`${usersUrl}/${userId}/${username}`)         
+    },[fetchedUser, postCreated, commentSent])
 
     useEffect(()=>{
         if(likes.includes(currentUserLikeId)){
@@ -266,7 +270,8 @@ const sharePost = async(url)=>{
                 description : sharePostValue,
                 sharedId : userId,
                 sharedUsername : username,
-                sharedDescription : description
+                sharedDescription : description,
+                shareImg : postImage
         }
     }
     const result = await axios(options)
@@ -309,7 +314,7 @@ const {_id : uId , username : userUsername} =  JSON.parse(currentUser)
                    }
                     
                 <div className='post-top'>
-                    <img src={Profile} alt={username}  className='profile-pic'/>
+                    <img src={profilePicture ? profilePicture : ProfileImage} alt={username}  className='profile-pic'/>
                     <div className='name'>{username}</div>
                     <TimeAgo datetime={createdAt} locale='en_US'/>
                 </div>
@@ -317,13 +322,28 @@ const {_id : uId , username : userUsername} =  JSON.parse(currentUser)
                     {description.length > 150 &&
                         <button className='more-btn' onClick={()=>setReadMoreValue(!readMoreValue)}>{readMoreValue ? `Show Less` : `Show More`}</button>}
                 </div>
-                {sharedDescription && sharedDescription.length > 0 &&<div>
-                        <div className='shared-box-info'>{`${username} shared a post by ${sharedUsername}`}</div>
+                {
+                sharedDescription && sharedDescription.length > 0 &&<div>
+                        <div className='shared-box-info'>{username == sharedUsername ? `${username} shared a memory` : `${username} shared a post by ${sharedUsername}`}</div>
                         <div className='shared-box'>
                             <div className='shared-description'>{sharedDescription}</div>
                             <div className='sharedname'>{sharedUsername}</div>
                         </div>
                     </div>
+                }
+                {
+                shareImg && shareImg.length > 0 &&<div>
+                        {/* <div className='shared-box-info'>{`${username} shared a post by ${sharedUsername}`}</div> */}
+                        <div className='shared-box'>
+                            <img src={shareImg} className='shared-img' />
+                            {/* <div className='sharedname'>{sharedUsername}</div> */}
+                        </div>
+                    </div>
+                }
+                {
+                    postImage && <div className='postImage-box'>
+                        <img src ={postImage} alt='Error fetching image' className='postImage' />
+                        </div>
                 }
                 <div className='icons-box'>
                     <div className='icons-box-item'><FaThumbsUp className='icon-thumbsup-liked-alt' /> {likesCount}</div>

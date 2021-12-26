@@ -21,29 +21,42 @@ const useStyles = makeStyles((theme) => ({
   //for popover ends
 
 const Topbar =()=>{
-     const {setLoggedIn, loggedIn, setCurrentUser, currentUser, openSidebar} = UseAppContext()
+     const {setLoggedIn, loggedIn, setCurrentUser, currentUser, currentUserParsed, openSidebar} = UseAppContext()
 
+     const {_id, username, receivedUnreadMessages} = currentUserParsed
 
      //popover function start
      const classes = useStyles();
      const [anchorEl, setAnchorEl] = React.useState(null);
+     const [anchorEl2, setAnchorEl2] = React.useState(null);
    
      const handleClick = (event) => {
        setAnchorEl(event.currentTarget);
      };
+
+     const handleClick2 = (event) => {
+        setAnchorEl2(event.currentTarget);
+      };
    
      const handleClose = () => {
        setAnchorEl(null);
      };
+     const handleClose2 = () => {
+        setAnchorEl2(null);
+      };
    
      const open = Boolean(anchorEl);
+     const open2 = Boolean(anchorEl2);
      const id = open ? 'simple-popover' : undefined;
+     const id2 = open2 ? 'simple-popover2' : undefined;
      //popover function end
 
      const setLoginValues =(value, loginData)=>{
         setCurrentUser(loginData)
         setLoggedIn(value)
     }
+
+
      
     return <Grid className='topbarContainer' container>
         <Grid className="topLeft" item xs ={9} sm={3}>
@@ -60,10 +73,10 @@ const Topbar =()=>{
                     <FaHome className="icons"  size='25'/>
                     </li>
                     <li className="topCenter-li">
-                    <FaPeopleArrows className="icons"  size='25'/>
+                    <Link to={`/connections/${_id}/${username}`}><FaPeopleArrows className="icons"  size='25'/></Link>
                     </li>
                     <li className="topCenter-li">
-                    <FaUserFriends className="icons"  size='25'/>
+                   <FaUserFriends className="icons"  size='25'/>
                     </li>
                     <li className="topCenter-li">
                     <FaBriefcase className="icons"  size='25'/>
@@ -72,8 +85,8 @@ const Topbar =()=>{
             </div>
         </Grid>
         <Grid className="topCRight" item xs ={false} sm={4}>
-            <div className="topRight-inner">
-                <ul className="topRight-ul">
+            <div className="topRight-inner" >
+                <ul className="topRight-ul" >
                     <li className='topRight-li'>
                         <FaUserAlt className="icons2" />
                     </li>
@@ -84,7 +97,7 @@ const Topbar =()=>{
                         <FaRocketchat  className="icons2"/>
                     </li>
                     <li className='topRight-li'>
-                        <FaBell  className="icons2"/>
+                        <div className='icon2-text'><FaBell  className="icons2"/>{ receivedUnreadMessages && receivedUnreadMessages.length}</div>
                     </li>
                     <li className='topRight-li'>
                         <FaChevronCircleDown  className="icons2" aria-describedby={id} variant="contained" color="primary" onClick={handleClick}/>
@@ -103,11 +116,31 @@ const Topbar =()=>{
                             }}
                         >
                            
-                        <Link to='/profile'><Button>{currentUser.username}Your Profile</Button></Link><br/>
-                        <Link to='/settings'><FaTools />Settings</Link><br/>
+                        <Button><Link to={`/userprofile/${_id}/${username}`}>Your Profile</Link></Button><br/>
+                        <Button aria-describedby={id2} onClick={handleClick2}><FaTools />Messages</Button><br/>
+                        <Button><Link to='/settings'><FaTools />Settings</Link></Button><br/>
                         <Divider />
                         {loggedIn && <Button onClick={()=>setLoginValues(false, {})}>Log out</Button>}
                            
+                        </Popover>
+
+                        <Popover
+                            id={id2}
+                            open={open2}
+                            anchorEl={anchorEl2}
+                            onClose={handleClose2}
+                            anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                            }}
+                            transformOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                            }}
+                        >
+                            <Button><Link to='/composemessage'>New Message</Link></Button><br />
+                            <Button><Link to='/inbox'>Inbox</Link></Button><br />
+                            <Button><Link to='/sent'>Sent Messages</Link></Button>
                         </Popover>
                     </li>
                 </ul>

@@ -13,19 +13,23 @@ import Axios from 'axios'
 import OtherUsers from '../../Components/OtherUsers/otherUsers'
 import LoadingIcons from 'react-loading-icons'
 import ProfileImage from '../../assets/profile.jpg'
-import CoverImage from '../../assets/cover.jfif'
+import CoverImage from '../../assets/coverpic.jpg'
 import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
 import { Timeline } from '@material-ui/icons'
 
+
 const UserProfile =()=>{
-const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated,
-tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser, setTestValue, testValue} = UseAppContext()
+const {loggedIn, setLoading, loading, setLazyLoading, lazyLoading, currentUser, currentUserParsed, allUsers, 
+    postcreated, setPostCreated, tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, 
+    fetchedUser, setTestValue, testValue} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
-const {_id : userId, username : userUsername, followings, followers} = fetchedUser
-const {profilePicture : userProfilePicture} = currentUserParsed
+const {_id : userId, username : userUsername, followings, followers, 
+    profilePicture : userProfilePicture, coverPicture : userCoverPicture} = fetchedUser
+// const {profilePicture : userProfilePicture, coverPicture : userCoverPicture} = currentUserParsed
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
+const followurl = 'https://smart-job-search.herokuapp.com/api/v1/user/follow'
 const unFollowurl = 'https://smart-job-search.herokuapp.com/api/v1/user/unfollow'
 const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
 const posturl = 'https://smart-job-search.herokuapp.com/api/v1/posts'
@@ -34,11 +38,20 @@ const [newPage, setNewPage] = useState(false)
 // const [timelineposts, setTimelinePosts] = useState([])
 const [profilePicture, setProfilePicture] = useState('')
 const [timelineposts, setTimelinePosts] = useState([])
+const [coverImage, setCoverImage] = useState('')
 const [profileImage, setProfileImage] = useState('')
+const [postImage, setPostImage] = useState('')
+const [coverPicturePreview, setCoverPicturePreview] = useState('')
 const [profilePicturePreview, setProfilePicturePreview] = useState('')
-const [previewBox, setPreviewBox] = useState(false)
+const [postPicturePreview, setPostPicturePreview] = useState('')
+// const [profilereviewBox, setProfilereviewBox] = useState(false)
+const [coverPreviewBox, setCoverPreviewBox] = useState(false)
+const [profilePreviewBox, setProfilePreviewBox] = useState(false)
+const [postPreviewBox, setPostPreviewBox] = useState(false)
+
 // const [imageValue, setProfilePicture] = useState('')
 
+//pagination constants
 let [page, setPage] = useState(0)
 let [incrementor, setIncrementor] = useState(1)
 const [timeline, setTimeline] = useState([])
@@ -49,12 +62,57 @@ const setValues = (e)=>{
     setFormValue(e.target.value)
 }
 
-
-const setNewUserValues = (value)=>{
-    setPreviewBox(false)
+const setUserCoverPicture = (value)=>{
+    setCoverPreviewBox(false)
     setTestValue(value)
 }
-//upload image and return url 
+
+const setUserProfilePicture = (value)=>{
+    setProfilePreviewBox(false)
+    setTestValue(value)
+}
+
+//upload cover image and return url 
+
+const uploadCoverPicture = async(value)=>{
+    const  url =`${posturl}/uploadprofileimage/${userId}/${username}`
+
+    const fd = new FormData()
+    fd.append("image", value, value.name)
+
+    const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadcoverimage/${userId}/${username}`, fd)
+    
+    const {src : imgSrc} = result.data.image
+    
+  const options = {
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createimage/${userId}/${username}`,
+        method : "PATCH",
+        headers : {
+            "Accept" : "application/json",
+            "Content-Type" : "application/json;charset=UTF-8"
+        },
+        data : {
+            userId : userId,
+            username : username,
+            coverPicture : imgSrc
+        }
+    }
+
+    const result2 = await Axios(options)
+
+    const {response, message} = result2.data
+    
+    if(response == 'Success' && message){
+        setUserCoverPicture(message)
+    }else if(response == 'Fail'){
+       setError({status : true, msg : "Fialed to upload profile image"})
+       return setTimeout(()=>{
+            setError({status : false, msg :''})
+    }, 4000)
+    }
+}
+
+//upload profile image and return url 
 const uploadProfilePicture = async(value)=>{
     const  url =`${posturl}/uploadprofileimage/${userId}/${username}`
 
@@ -62,11 +120,11 @@ const uploadProfilePicture = async(value)=>{
     fd.append("image", value, value.name)
 
     const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadprofileimage/${userId}/${username}`, fd)
-    
+
     const {src : imgSrc} = result.data.image
     
   const options = {
-        url: `https://smart-job-search.herokuapp.com/api/v1/user/createprofileimage/${userId}/${username}`,
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createimage/${userId}/${username}`,
         method : "PATCH",
         headers : {
             "Accept" : "application/json",
@@ -79,12 +137,13 @@ const uploadProfilePicture = async(value)=>{
         }
     }
 
+    
     const result2 = await Axios(options)
 
     const {response, message} = result2.data
     
     if(response == 'Success' && message){
-        setNewUserValues(message)
+        setUserProfilePicture(message)
     }else if(response == 'Fail'){
        setError({status : true, msg : "Fialed to upload profile image"})
        return setTimeout(()=>{
@@ -94,12 +153,38 @@ const uploadProfilePicture = async(value)=>{
 }
 
 
-//select profile picture
+//select cover pic
+const selectCoverPic = (e)=>{
+    e.preventDefault()
+    setCoverImage(e.target.files[0])
+}
 
-const selectPic = (e)=>{
+//select profile picture
+const selectProfilePic = (e)=>{
     e.preventDefault()
     setProfileImage(e.target.files[0])
 }
+
+//select post pic
+const selectPostPic = (e)=>{
+    e.preventDefault()
+    setPostImage(e.target.files[0])
+}
+
+useEffect(()=>{
+    if(coverImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setCoverPicturePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(coverImage)
+        setCoverPreviewBox(true)
+        setProfilePreviewBox(false)
+        setPostPreviewBox(false)
+    }else{
+        return
+    }
+},[coverImage])
 
 useEffect(()=>{
     if(profileImage){
@@ -108,11 +193,29 @@ useEffect(()=>{
             setProfilePicturePreview(fileReader.result)
         }
         fileReader.readAsDataURL(profileImage)
-        setPreviewBox(true)
+        setProfilePreviewBox(true)
+        setCoverPreviewBox(false)
+        setPostPreviewBox(false)
     }else{
         return
     }
 },[profileImage])
+
+
+useEffect(()=>{
+    if(postImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setPostPicturePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(postImage)
+        setPostPreviewBox(true)
+        setCoverPreviewBox(false)
+        setProfilePreviewBox(false)
+    }else{
+        return
+    }
+},[postImage])
 
 
 
@@ -127,7 +230,7 @@ const {id, username} = useParams()
 
 useEffect(()=>{
     fetchUser(`https://smart-job-search.herokuapp.com/api/v1/user/${id}/${username}`)
-},[id, username])
+},[postcreated, id, username, testValue])
 
 
 // let lastUrl = window.location.href; 
@@ -200,6 +303,7 @@ const fetchUser = async(fetchurl)=>{
 
 const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
+    setPostPreviewBox(false)
     setPostCreated(true)
     setFormValue('')
     setTimeout(()=>{
@@ -215,6 +319,48 @@ if(currentUserParsed){
      newUserFollowings = currentUserParsed.followings
 }
 
+//FOLLOW USER
+const follow =async(e, id, followedUsername)=>{
+    e.preventDefault()
+    const {_id , username} = JSON.parse(currentUser)
+   
+        const options = {
+            url: `${followurl}/${id}/${followedUsername}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+       
+        const result = await axios(options)
+        
+        if(result.data.response == "Success"){
+          
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            
+            if(data){
+                // window.location.href='/' 
+                // setValues(true, data)
+
+                setTestValue(!testValue)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'An error occured while following'})  
+        }       
+        
+    // }
+
+}
 
 
 
@@ -243,8 +389,10 @@ const unfollow =async(e, id, followedUsername)=>{
             const {data} = reponse_2.data
             if(data){
                 setTestValue(!testValue)
-                // window.location.href=`/userprofile/${_id}/${username}`
-                // setDataValues(true, data)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
             } 
         }else{
             setAlertMsg({status : true, msg : 'An error occured while following'})  
@@ -254,16 +402,104 @@ const unfollow =async(e, id, followedUsername)=>{
 
 }
 
+
+//CONNECTION REQUEST TO USER
+const connectRequest =async(e, value1, value2)=>{
+    e.preventDefault()
+    
+    const {_id , username} = currentUserParsed
+   
+        const options = {
+            url : `https://smart-job-search.herokuapp.com/api/v1/user/connectrequest/${value1}/${value2}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+        
+        const result = await axios(options)
+      
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                // window.location.href=`/userprofile/${_id}/${username}`
+                // setDataValues(true, data)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'Failed to send request from user'})  
+        }       
+        
+    // }
+
+}
+
+
+
+//DISCONNECTION REQUEST TO USER
+const disconnectRequest =async(e, value1, value2)=>{
+    e.preventDefault()
+    
+    const {_id , username} = currentUserParsed
+   
+        const options = {
+            url : `https://smart-job-search.herokuapp.com/api/v1/user/disconnectrequest/${value1}/${value2}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+        
+        const result = await axios(options)
+      
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                // window.location.href=`/userprofile/${_id}/${username}`
+                // setDataValues(true, data)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'Failed to disconnect from user'})  
+        }       
+        
+    // }
+
+}
+
+
 const submit = async(e)=>{
     e.preventDefault()
     const {_id , username} = currentUserParsed
     const url = `https://smart-job-search.herokuapp.com/api/v1/posts`
-    if(!formValue){
-        setError({status : true, msg : "Pleae enter a text to post"})
-       return setTimeout(()=>{
-            setError({status : false, msg :''})
-        }, 4000)
-    }
+    if(postImage){    
+    // if(formValue){
+    //     setError({status : true, msg : "Pleae enter a text to post"})
+    //    return setTimeout(()=>{
+    //         setError({status : false, msg :''})
+    //     }, 4000)
+    // }
+
+    
+    const fd = new FormData()
+    fd.append("image", postImage, postImage.name)
+
+    const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/posts/uploadimage/${userId}/${username}`, fd)
+
+    const {src : imgSrc} = result.data.image
+        
         const options = {
             url: url,
             method : "POST",
@@ -274,26 +510,63 @@ const submit = async(e)=>{
             data:{
                 userId : _id,
                 username : username,
-                description : formValue
-                
+                description : formValue,
+                img : imgSrc
             }
         }
 
-        const result = await Axios(options)
-
-        const {data, response} = result.data
-    //    console.log("data now",result)
-        if(response === 'Success'){ 
+        const result2 = await Axios(options)
+        console.log("data now 2",result2)
+        const {response, newPost} = result2.data
+   
+        if(response === 'Success' && newPost){ 
             setPostData(true, "Your post has been submited")
-            
-            // return window.location.href = '/'
+            // setPostcreated(!postcreated)
         }else if(response === 'Fail'){
-            const {message} = result.data
-            setError({status : true, msg : message})
+            
+            // setError({status : true, msg : message})
             setTimeout(()=>{
                 setError({status : false, msg :''})
             }, 4000)
         }
+    }else{
+        if(!formValue){
+            setError({status : true, msg : "Pleae enter a text to post"})
+           return setTimeout(()=>{
+                setError({status : false, msg :''})
+            }, 4000)
+        }
+            const options = {
+                url: url,
+                method : "POST",
+                headers : {
+                    "Accept" : "application/json",
+                    "Content-Type" : "application/json;charset=UTF-8"
+                },
+                data:{
+                    userId : _id,
+                    username : username,
+                    description : formValue
+                    
+                }
+            }
+    
+            const result = await Axios(options)
+    
+            const {data, response} = result.data
+        //    console.log("data now",result)
+            if(response === 'Success'){ 
+                setPostData(true, "Your post has been submited")
+                
+                // return window.location.href = '/'
+            }else if(response === 'Fail'){
+                const {message} = result.data
+                setError({status : true, msg : message})
+                setTimeout(()=>{
+                    setError({status : false, msg :''})
+                }, 4000)
+            }
+    }
 }
 
 
@@ -366,7 +639,7 @@ if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUse
 }
 
 
-
+console.log( 'adsv ddd',userProfilePicture, fetchedUser)
 
 const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
 
@@ -387,25 +660,47 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
             <Grid className='profile-center-left' item sm={false} md={1} ></Grid>
             
              <Grid className='profile-top'  item xs={12}> 
-                <img src ={CoverImage} alt='Cover Image' className='cover-image'/>
+                {/* <img src = {CoverImage} alt='Cover Image' className='cover-image'/> */}
+                { <img src={userCoverPicture ? userCoverPicture : CoverImage} alt='Cover Image' className='cover-image' />}
+                {coverPreviewBox && 
+                    <div className='cover-img-preview-box'>
+                        <img src={coverPicturePreview} alt='Error loading preview' className='cover-img-preview'/>
+                        <div className='pic-upload-btn'>
+                            <Button onClick={()=>setCoverPreviewBox(false)}>Cancel</Button>
+                            <Button onClick={()=>uploadCoverPicture(coverImage)}>Upload Picture</Button>
+                        </div>
+                    </div>
+                    }
+                <form className="cover-label-box" enctype="multipart/form-data">
+                        {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='coverPicture'  >
+                            <div className="cover-label-box-inner" > 
+                                <FaCamera  className='img-upload-icon' size='30' /> 
+                          </div>
+                        <input id='coverPicture' type='file' name='coverPic' className='homepage-center-input2' 
+                        onChange={selectCoverPic}/>
+                        </label>}
+                        {/* <button className='post-btn' onClick={submit}>Post</button> */}
+                    </form>
                 <Grid className='profile-img-box' container>
                 <Grid item xs={12} sm={3}>
                    { <img src={userProfilePicture ? userProfilePicture : ProfileImage} alt='Profile Image' className='profile-img' />}
-                    {previewBox &&
+                    {profilePreviewBox && 
                     <div className='profile-img-preview-box'>
                         <img src={profilePicturePreview} alt='Error loading preview' className='profile-img-preview'/>
-                        <Button onClick={()=>setPreviewBox(false)}>Cancel</Button>
-                        <Button onClick={()=>uploadProfilePicture(profileImage)}>Upload Picture</Button>
+                        <div className='pic-upload-btn'>
+                            <Button onClick={()=>setProfilePreviewBox(false)}>Cancel</Button>
+                            <Button onClick={()=>uploadProfilePicture(profileImage)}>Upload Picture</Button>
+                        </div>
                     </div>
                     }
-                    <form className="label-box" enctype="multipart/form-data">
-                        <label htmlFor='profilePicture'  >
-                            <div className="label-box-inner">
+                    <form className="profile-label-box" enctype="multipart/form-data">
+                        {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='profilePicture'  >
+                            <div className="profile-label-box-inner">
                                 <FaCamera  className='img-upload-icon' size='30'/> 
                           </div>
                         <input id='profilePicture' type='file' name='profilePic' className='homepage-center-input2' 
-                        onChange={selectPic}/>
-                        </label>
+                        onChange={selectProfilePic}/>
+                        </label>}
                         {/* <button className='post-btn' onClick={submit}>Post</button> */}
                     </form>
                     <div className='profile-summary-desktop'>
@@ -424,13 +719,23 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                 <Grid className='btn-box' item xs={12} sm={4}>
                     
                 { idCurrent == userId && usernameCurrent == userUsername ?
-                    <Button className='btn'>Edit Profile</Button> :<>
+                    <Button className='btn'>Edit Profile</Button> : 
+                    <>
                     <div className='other-userbtn1'>
                         <FaEllipsisH />
                     </div>
                     <div className='other-userbtn2'>
-                        <Button className='btn'>Follow</Button>
-                        <Button className='btn'>Connect</Button>
+                        {  currentUserParsed && !currentUserParsed.followings.includes(userId) ?
+                            <Button className='btn' onClick={(e)=>follow(e, userId, userUsername)}>Follow</Button>
+                        : <Button className='btn' onClick={(e)=>unfollow(e, userId, userUsername)}>Unfollow</Button>
+                        }
+                        { currentUserParsed && !currentUserParsed.connections.includes(userId) &&
+                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>
+                            { !currentUserParsed.sentConnectionRequests.includes(userId) ? `Connect Request` : 
+                            !currentUserParsed.receivedConnectionRequests.includes(userId) ? `Cancel Request` : null }
+                        </Button>}
+                    { currentUserParsed && currentUserParsed.connections.includes(userId) &&
+                    <Button className='btn' onClick={(e)=>disconnectRequest(e, userId, userUsername)}>Disconnect</Button>}
                         <Button className='btn'>Send Message</Button>
                     </div>
                 </>
@@ -449,8 +754,7 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                 <div className='profile-center-inner-left-2'>
                     <h3>My Bio</h3>
                     <h4>Description here</h4>
-                    { 
-                        id == userId && username == userUsername &&
+                    { idCurrent == userId && usernameCurrent == userUsername &&
                      <><Button className='bio-btn'>Edit Bio</Button><br/></>
                     }
                     <div className='icons-box'>
@@ -514,7 +818,8 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                             <div className='follow-name'>{username}</div>
                             <form>
                                 <br/>
-                                <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>{ newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>
+                                {  allUser._id != currentUserParsed._id  && newUserFollowings &&
+                                    <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn'>{ newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>}
                             </form>
                         </div>
                      }
@@ -530,7 +835,7 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
             { idCurrent == userId && usernameCurrent == userUsername &&
             <div className='profile-center-top' >
                 <div className='profile-center-top-inner'>
-                    <FaUserAlt className='icon' size='30'/>
+                { <img src={userProfilePicture ? userProfilePicture : ProfileImage} alt='Profile Image' className='profile-img-2' />}
                     <input type='hidden' name='userId' />
                     <input type='hidden'  name='username'/>
                    
@@ -541,16 +846,23 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                     error.status && <div className='errorNotice'><FaExclamationCircle />{error.msg}</div>
                 }   
                 <hr className='profile-center-top-hr'/>
+                    {postPreviewBox && 
+                    <div className='post-img-preview-box'>
+                        <img src={postPicturePreview} alt='Error loading preview' className='post-img-preview'/>
+                    </div>
+                    }
                 <div className='profile-center-top-inner2' >
-                    <label htmlFor='picture' >
+                {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='postPicture'  >
                         <div className="profile-center-input-item">
                             <FaImages className='profile-center-input-icon' size='30'/> Picture
                        </div>
-                     <input id='picture' type='file' className='profile-center-input2'/>
-                    </label>
+                     <input id='postPicture' type='file' name='postPic' className='profile-center-input2' 
+                        onChange={selectPostPic}/>
+                    </label>}
                     <button className='post-btn' onClick={submit}>Post</button>
                 </div>     
             </div> 
+           
             }
             <div className='profile-center-middle'>
               {!timeline  ?

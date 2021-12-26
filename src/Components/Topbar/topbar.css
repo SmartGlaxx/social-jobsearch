@@ -99,7 +99,7 @@
 }
 .topRight-li{
     text-decoration: none;
-    padding: var(--icon-li-padding);
+    padding: var(--icon-li-padding2);
     width: 100%;
     display: grid;
     place-items: center;
@@ -112,6 +112,18 @@
     padding: 0.3rem;
     background: var(--background-color);
     border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+.icon2-text{
+    display: flex;
+    color: var(--color-alert);
+    font-weight: 900;
+    /* width : var(--icon-size2);
+    height: var(--icon-size2); */
+    padding: 0.3rem;
+    background: var(--background-color);
+    /* border-radius: 50%; */
     cursor: pointer;
     transition: all 0.5s;
 }

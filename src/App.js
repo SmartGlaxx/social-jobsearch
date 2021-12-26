@@ -1,9 +1,8 @@
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import {Signup, Login, HomePage, Connections, UserProfile, ErrorPage} from "./Pages";
+import {Signup, Login, HomePage, Connections, UserProfile, ComposeMessages, Inbox,
+   SentMessages, Chat, ErrorPage} from "./Pages/index";
 import './App.css'
-
-const authCheck1 = window.location.href.indexOf('/signup')
-const authCheck2 = window.location.href.indexOf('/login')
+// import { Chat } from './Pages/Messages';
 
 function App() {
 
@@ -15,6 +14,10 @@ function App() {
          <Route path='/' element={<HomePage/>} exact/>
          <Route path='/userprofile/:id/:username' element={<UserProfile/>} exact/>
          <Route path='/connections/:id/:username' element={<Connections/>} exact/>
+         <Route path='/composemessage' element={<ComposeMessages/>} exact/>
+         <Route path='/chat/:userId/:userUsername/:id' element={<Chat/>} exact/>
+         <Route path='/inbox' element={<Inbox/>} exact/>
+         <Route path='/sentmessages' element={<SentMessages/>} exact/>
          <Route path='*' element={<ErrorPage/>} exact/>
        </Routes>
     </Router>

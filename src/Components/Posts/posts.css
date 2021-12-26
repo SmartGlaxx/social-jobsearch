@@ -33,6 +33,10 @@
     font-size: 0.9rem;
     color: var(--color2);
 }
+.shared-img{
+    width: 70%;
+    margin-left: 15%;
+}
 .shared-box-info{
     font-size:  var(--header-font-size-4);
 }
@@ -281,6 +285,15 @@
     transform: translateX(-50%);
 }
 
+.postImage-box{
+
+}
+.postImage{
+    width: 100%;
+    height: auto;
+    max-height: 25rem;
+    object-fit: cover;
+}
 
 @media screen and (max-width : 450px ){
     .share-box-inner{
