@@ -138,7 +138,7 @@ const Topbar =()=>{
                             horizontal: 'center',
                             }}
                         >
-                            <Button><Link to='/composemessage'>Compose Message</Link></Button><br />
+                            <Button><Link to='/composemessage'>New Message</Link></Button><br />
                             <Button><Link to='/inbox'>Inbox</Link></Button><br />
                             <Button><Link to='/sent'>Sent Messages</Link></Button>
                         </Popover>

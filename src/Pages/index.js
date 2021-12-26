@@ -3,9 +3,9 @@ import Login from "./Auth/Login/login";
 import HomePage from "./Home/homepage";
 import UserProfile from "./UserProfile/userprofile";
 import Connections from "./Connections/connections";
-import { ComposeMessages, Inbox, SentMessages } from "./Messages";
+import { ComposeMessages, Inbox, SentMessages, Chat } from "./Messages";
 
 import ErrorPage from "./Error/errorpage";
 
 export {Signup, Login, HomePage, UserProfile, Connections, ComposeMessages, 
-    Inbox, SentMessages, ErrorPage}
+    Inbox, SentMessages, Chat, ErrorPage}

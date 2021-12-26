@@ -27,7 +27,6 @@ const setPostData = (value1, value2)=>{
     setPostPreviewBox(false)
     setPostCreated(true)
     setFormValue('')
-    console.log('sent')
     setTimeout(()=>{
         setPostCreated(false)
     }, 3000)
@@ -103,14 +102,14 @@ const sendMessage = async(e)=>{
 
         const result2 = await Axios(options)
         
-        const {response, newPost} = result2.data
-   
-        if(response === 'Success' && newPost){ 
+        const {response, formatedMessage} = result2.data
+ 
+        if(response === 'Success' && formatedMessage){ 
             setPostData(true, "Your post has been submited")
             // setPostcreated(!postcreated)
         }else if(response === 'Fail'){
-            
-            // setError({status : true, msg : message})
+            const {message} = result2.data
+            setError({status : true, msg : message})
             setTimeout(()=>{
                 setError({status : false, msg :''})
             }, 4000)
@@ -139,13 +138,10 @@ const sendMessage = async(e)=>{
             }
     
             const result = await Axios(options)
-            console.log(result)
+            
             const {data, response} = result.data
-        //    console.log("data now",result)
             if(response === 'Success'){ 
                 setPostData(true, "Your post has been submited")
-                
-                // return window.location.href = '/'
             }else if(response === 'Fail'){
                 const {message} = result.data
                 setError({status : true, msg : message})
@@ -168,17 +164,16 @@ const sendMessage = async(e)=>{
             <h3>Compose Message</h3>
             <form className="compose-center-form">
                 From: <input type='text'  value={username} name='from' className='forminput'/><br />
-                To: <select type='text' onChange={setFormValue} name='to' name='recipient' className='forminput'><br />
+                To: <select type='text' onChange={()=>setFormValue()} name='recipient' className='forminput'><br />
+                <option selected>Select Recipient</option>
                 {
                 allUsers.length > 1 && allUsers.map(allUser =>{
                     if(connections && connections.includes(allUser._id)){
                         const {_id, username} = allUser
                         
-                        return <>
-                            <option selected>Select Recipient</option>
-                            <option value={`${_id} ${username}`} key = {_id}>{username}</option>
+                        return <option value={`${_id} ${username}`} key = {_id}>{username}</option>
                             
-                        </>
+                        
                     }
                     
                 }) 
@@ -193,19 +188,21 @@ const sendMessage = async(e)=>{
                 <Button  className='formbutton' onClick={sendMessage}>Send</Button>
             </form>
             </div>
-            <div className='homepage-center-top-inner2'>
+            <div className='compose-center-top-inner2'>
                  <label htmlFor='postPicture' >
                         <div className="homepage-center-input-item">
                             <FaImages className='homepage-center-input-icon' size='30'/> Picture
                        </div>
-                     <input id='postPicture' type='file' name='postPic' className='homepage-center-input2' 
+                     <input id='postPicture' type='file' name='postPic' className='compose-center-input2' 
                         onChange={selectPostPic}/>
                     </label>
                 </div>  
                 {postPreviewBox && 
-                <div className='post-img-preview-box'>
-                    <img src={postPicturePreview} alt='Error loading preview' className='post-img-preview-2'/>
-                    <Button onClick={()=>setPostPreviewBox(false)}>Cancel</Button>
+                <div className='message-img-preview-box'>
+                    <>
+                        <img src={postPicturePreview} alt='Error loading preview' className='message-img-preview-2'/>
+                        <Button onClick={()=>setPostPreviewBox(false)}>Cancel</Button>
+                    </>
                 </div>
                 }
             </Grid>
