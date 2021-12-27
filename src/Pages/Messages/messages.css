@@ -107,18 +107,58 @@
 }
 
 /* Chat */
+
+
+.inbox-center{
+    
+}
 .userChat{
+    margin: 1.4rem 0rem;
+    margin-left: auto;
+    width: 10rem;
     background: red; 
-    padding : 2rem;
-    width : 4rem;
-    float: right
-}
-.otherUserChat{
-    background: blue; 
-    padding : 2rem;
-    width : 4rem
+    position: relative;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 0.3rem;
+  }
   
-}
+  .userChat::after {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    background: #f00;
+    position: absolute;
+    bottom: -1rem;
+    left: calc(100% - 1rem) ;
+    clip-path: polygon(0 0, 50% 0, 50% 100%);
+  }
+
+.otherUserChat{
+    margin: 1.4rem 0rem;
+    margin-right: auto;
+    width: 10rem;
+    background: blue; 
+    position: relative;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 0.3rem;
+  }
+  
+  .otherUserChat::after {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    background: blue; 
+    position: absolute;
+    bottom: -1rem;
+    left: 0.5rem;
+    clip-path: polygon(0 0, 50% 0, 0% 100%);
+  }
 
 
 @media screen and (max-width: 400px){

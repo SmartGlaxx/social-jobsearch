@@ -13,7 +13,7 @@ import LoadingIcons from 'react-loading-icons'
 const Inbox = () =>{
     const {currentUserParsed} = UseAppContext()
     const [newAllMessages, setNewAllMessages] = useState([])
-    const [userUniqueUsernames, setUserUniqueUsernames] = useState([])
+    const [userUniqueIds, setUserUniqueIds] = useState([])
     const [fetchedUsers, setFetchedUsers] = useState([])
     const  {_id : userId, username : userUsername } = currentUserParsed
     const messageUrl =  `https://smart-job-search.herokuapp.com/api/v1/messages/${userId}/${userUsername}`
@@ -56,11 +56,14 @@ useEffect(()=>{
 
 const filterMessages = ()=>{
     
-    const filtered = [...new Set(newAllMessages.map(item => item.senderId))]    
-    setUserUniqueUsernames(filtered)
+    const filteredSent = [...new Set(newAllMessages.map(item => item.senderId))] 
+    const filteredReceived = [...new Set(newAllMessages.map(item => item.receiverId))]  
+    const filtered = [...new Set(filteredSent.concat(filteredReceived))]  
+    setUserUniqueIds(filtered)
 
 }
 
+// console.log(newAllMessages)
 
 useEffect(()=>{
   filterMessages()
@@ -77,9 +80,9 @@ const fetchUsers = async(fetchurl)=>{
 
 useEffect(()=>{
     fetchUsers(`https://smart-job-search.herokuapp.com/api/v1/user`)
-},[newAllMessages, userUniqueUsernames])
+},[newAllMessages, userUniqueIds])
 
-// console.log('fetch', fetchedUsers, userUniqueUsernames, newAllMessages)
+// console.log('fetch', fetchedUsers, userUniqueIds, newAllMessages)
 
 
     return <div>
@@ -98,7 +101,7 @@ useEffect(()=>{
                     {
                     fetchedUsers.length ? fetchedUsers.map(user => {
                      
-                            if(userUniqueUsernames.includes(user._id) && user._id !== userId  ){
+                            if(userUniqueIds.includes(user._id) && user._id !== userId  ){
                                 const {_id : id, username : otherUser} = user
                                 return <><Link to={`/chat/${userId}/${userUsername}/${id}`}>{otherUser}</Link><br/></>
                             }
