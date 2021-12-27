@@ -160,6 +160,40 @@
     clip-path: polygon(0 0, 50% 0, 0% 100%);
   }
 
+  .sendingBox{
+      align-items: right;
+      position: fixed;
+      bottom: 0;
+      width: calc(100% - 50%);
+      height: auto;
+  }
+
+  .chatinput{
+      padding: var(--input-padding);
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--section-border-radius);
+      border: 1px solid var(--border-color);
+      margin-left: 1rem; 
+      background: var(--background-color-2);
+  }
+
+  .chatinput:focus{
+    outline: none;
+    }
+
+  .send-btn{
+      position: absolute;
+      top: -10rem
+  }
+
+
+@media screen and (max-width: 600px){
+    .sendingBox{
+        width: 65%;
+    }
+}
 
 @media screen and (max-width: 400px){
     .compose-center-form{
