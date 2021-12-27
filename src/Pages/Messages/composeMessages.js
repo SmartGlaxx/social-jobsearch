@@ -17,7 +17,6 @@ const [postPreviewBox, setPostPreviewBox] = useState(false)
 
 const {_id, username, connections} = currentUserParsed
 const [formData, setFormData] = useState({
-    from : username,
     recipient : "",
     message : ""
 })
@@ -26,22 +25,22 @@ const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
     setPostPreviewBox(false)
     setPostCreated(true)
-    setFormValue('')
-    setTimeout(()=>{
-        setPostCreated(false)
-    }, 3000)
+    setFormData({
+        recipient : "",
+        message : ""
+    })
 }
 
 const setFormValue = (e)=>{
     const name = e.target.name
     const value = e.target.value
-
+    console.log(name)
     setFormData(prev =>{
         return {...prev, [name]: value}
     })
 }
 
-
+console.log(formData)
 
 const selectPostPic = (e)=>{
     e.preventDefault()
@@ -66,13 +65,14 @@ useEffect(()=>{
 //SEND MESSAGE
 
 const sendMessage = async(e)=>{
+    console.log('sent')
     e.preventDefault()
     const {_id , username} = currentUserParsed
     const userData = formData.recipient
     const recipientId = userData.split(' ')[0]
     const recipientUsername = userData.split(' ')[1]
     
-  
+    
     const url = `https://smart-job-search.herokuapp.com/api/v1/messages/${recipientId}/${recipientUsername}`
 
     if(postImage){        
@@ -136,10 +136,11 @@ const sendMessage = async(e)=>{
                     message : formData.message
                 }
             }
-    
+            
             const result = await Axios(options)
             
-            const {data, response} = result.data
+            const {formatedMessage, response} = result.data
+           
             if(response === 'Success'){ 
                 setPostData(true, "Your post has been submited")
             }else if(response === 'Fail'){
@@ -164,7 +165,7 @@ const sendMessage = async(e)=>{
             <h3>Compose Message</h3>
             <form className="compose-center-form">
                 From: <input type='text'  value={username} name='from' className='forminput'/><br />
-                To: <select type='text' onChange={()=>setFormValue()} name='recipient' className='forminput'><br />
+                To: <select type='text' onChange={setFormValue} name='recipient' className='forminput'><br />
                 <option selected>Select Recipient</option>
                 {
                 allUsers.length > 1 && allUsers.map(allUser =>{
