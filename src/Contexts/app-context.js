@@ -8,7 +8,8 @@ ALERT='ALERT'; const ALLUSERS = "ALLUSERS"; const TEMPALLUSERS = 'TEMPALLUSERS';
 const SETCUSERFOLLOWINGS = "SETCUSERFOLLOWINGS"; const SETNEWTEMPUSER = 'SETNEWTEMPUSER'
 const POSTCREATED = 'POSTCREATED'; const SETSIDEBAR = 'SETSIDEBAR' ; const USERCLICKED = 'USERCLICKED';
 const SETFETCHEDUSER = 'SETFETCHEDUSER'; const COMMENTSENT = 'COMMENTSENT';
-const CURRENTUSERPARSED = 'CURRENTUSERPARSED' ; const TESTVALUE = 'TESTVALUE'; const LAZYLOADING = 'LAZYLOADING'
+const CURRENTUSERPARSED = 'CURRENTUSERPARSED' ; const TESTVALUE = 'TESTVALUE'; const LAZYLOADING = 'LAZYLOADING';
+const SETCHATUSERNAME = 'SETCHATUSERNAME'
 
 
 const getLoggedIn = ()=>{
@@ -279,10 +280,15 @@ const setTestValue = (value)=>{
 const setLazyLoading = (value)=>{
     dispatch({type : LAZYLOADING, payload : value})
 }
+
+//SET USERNAME FOR CHAT MATE
+const setChatUser = (value)=>{
+    dispatch({type : SETCHATUSERNAME, payload : value})
+}
     return <AppContext.Provider value={{
         ...state, setLoading, setLazyLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, 
         setTempAllusers, setPostCreated, openSidebar, setUserClicked, setFetchedUser, 
-        setTimelinePosts, setCommentSent,  setTestValue
+        setTimelinePosts, setCommentSent,  setTestValue, setChatUser
     }}>
     {children}
     </AppContext.Provider>

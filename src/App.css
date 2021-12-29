@@ -29,6 +29,9 @@
     --color-alert : rgb(223, 5, 5);
     --color-close : rgb(236, 39, 39);
     --color-success : rgb(3, 145, 15);
+    --chat-padding : 0.5rem;
+    --chat-padding-2 : 0.8rem;
+    --chat-padding-3 : 0.5rem;
     --error-background : rgba(230, 230, 230, 0.9);
     --error-border: 1px solid #888;
     --error-color : rgb(236, 39, 39);

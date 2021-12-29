@@ -11,7 +11,7 @@ import LoadingIcons from 'react-loading-icons'
 
 
 const Inbox = () =>{
-    const {currentUserParsed} = UseAppContext()
+    const {loggedIn, currentUserParsed} = UseAppContext()
     const [newAllMessages, setNewAllMessages] = useState([])
     const [userUniqueIds, setUserUniqueIds] = useState([])
     const [fetchedUsers, setFetchedUsers] = useState([])
@@ -84,6 +84,9 @@ useEffect(()=>{
 
 // console.log('fetch', fetchedUsers, userUniqueIds, newAllMessages)
 
+if(loggedIn == false){
+    return window.location.href = '/login'
+}
 
     return <div>
         <Topbar />

@@ -7,15 +7,18 @@ import { Topbar, Sidebar, Backdrop } from "../../Components"
 import {Button, Grid} from '@material-ui/core'
 import { UseAppContext } from '../../Contexts/app-context'
 import Axios from 'axios'
+import SinglgeMessage from './singleMessage'
+import { Satellite } from '@material-ui/icons'
 
 const Chat = ()=>{
 
-    const {currentUserParsed, allUsers, setPostCreated} = UseAppContext()
+    const {loggedIn, currentUserParsed, allUsers, setChatUser, chatUser} = UseAppContext()
     const [error, setError] = useState({status : false, msg:''})
     const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
     const [postPicturePreview, setPostPicturePreview] = useState('')
     const [postImage, setPostImage] = useState('')
     const [postPreviewBox, setPostPreviewBox] = useState(false)
+    const [chatCreated, setChatCreated] = useState(false)
 
 const {userId, userUsername, id} = useParams()
 const [fetchedMsg, setFetchedMsg] = useState([])
@@ -33,9 +36,9 @@ const [otherUser, setOtherUser] = useState({
 const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
     setPostPreviewBox(false)
-    setPostCreated(true)
+    setChatCreated(!chatCreated)
     setFormData({
-        recipient : "",
+        userName : "",
         message : ""
     })
 }
@@ -52,24 +55,36 @@ const setPostData = (value1, value2)=>{
     }
 
     useEffect(()=>{
+        const newArrId = []
+        const newArrUsername = []
         fetchedMsg.map(msg =>{
-            if(msg.receiverId !== userId  || msg.senderId !== userId){
-                setOtherUser({
-                    id : msg.receiverId,
-                    username : msg.receiverUsername
-                })
-            }
+            newArrId.push(msg.senderId)
+            newArrId.push(msg.receiverId)
+            newArrUsername.push(msg.senderUsername)
+            newArrUsername.push(msg.receiverUsername)
+        const newArrayId2 =  newArrId.filter(item =>{
+            return item != userId
+        })
+        const newArrUsername2 =  newArrUsername.filter(item =>{
+            return item != userUsername
+        })
+        const ID = newArrayId2[0]
+        const UserName = newArrUsername2[0]
+        setOtherUser({
+                id : ID,
+                username : UserName
+            })
         })
     },[fetchedMsg])
-   
+    
 
     useEffect(()=>{
         fetchUsersChat(`https://smart-job-search.herokuapp.com/api/v1/messages/chat/${userId}/${userUsername}/${id}`)
-    },[])
+    },[chatCreated])
     
     const setFormValue = (e, value1, value2)=>{
         e.preventDefault()
-      
+      console.log('loging,', value1, value2, otherUser )
         setFormData({userID : value1, userName : value2, message : e.target.value})
         
     }
@@ -87,7 +102,7 @@ const sendMessage = async(e)=>{
     
     const {userID : recipientId, userName : recipientUsername} = formData
     const url = `https://smart-job-search.herokuapp.com/api/v1/messages/${recipientId}/${recipientUsername}`
-
+// console.log('formData',formData, currentUserParsed)
     if(postImage){        
     const fd = new FormData()
     fd.append("image", postImage, postImage.name)
@@ -166,30 +181,25 @@ const sendMessage = async(e)=>{
     }
 }
 
+if(loggedIn == false){
+    return window.location.href = '/login'
+}
 
 
-    return <div>
+    return <div className='chat-main'>
         <Topbar />
         <Sidebar />
         <Backdrop />
-        <Grid container>
-            <Grid item xs={false} sm={3} className="inbox-left">
+        <Grid container className="chats-container-main" >
+            <Grid item xs={false} sm={3} className="chat-left">
+                dstrsdsb
             </Grid>
-            <Grid item xs={12} sm={6} className="inbox-center">
+            <Grid item xs={12} sm={6} className="chats-container">
+                <div className = 'chat-title'>{chatUser}</div>
         {
-            fetchedMsg.map(message =>{
-                const {_id, createdAt, message : chat, senderId, senderUsername, receiverId, receiverUsername} = message
-                
-                    if(senderId == userId){
-                        return <div className='userChat' key={_id}>
-                            {chat}
-                    </div>
-                    }else if(senderId == id){
-                        return <div className='otherUserChat' key={_id}>
-                        {chat}
-                    </div>  
-                    }
-               
+            fetchedMsg.map(message =>{   
+                const {_id} = message             
+               return  <SinglgeMessage key={_id} {...message} />
             })
         }
          <div className='sendingBox'>
@@ -207,7 +217,7 @@ const sendMessage = async(e)=>{
 
 
             </Grid>
-         <Grid item xs={false} sm={3} className="inbox-left">
+         <Grid item xs={false} sm={3} className="chat-right">
         </Grid>
     </Grid>
     </div>

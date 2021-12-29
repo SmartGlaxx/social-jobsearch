@@ -8,12 +8,13 @@ import { FaImages } from 'react-icons/fa'
 
 
 const ComposeMessages = () =>{
-const {currentUserParsed, allUsers, setPostCreated} = UseAppContext()
+const {loggedIn, currentUserParsed, allUsers, setPostCreated} = UseAppContext()
 const [error, setError] = useState({status : false, msg:''})
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
 const [postPicturePreview, setPostPicturePreview] = useState('')
 const [postImage, setPostImage] = useState('')
 const [postPreviewBox, setPostPreviewBox] = useState(false)
+const [chatCreated, setChatCreated] = useState(false)
 
 const {_id, username, connections} = currentUserParsed
 const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const [formData, setFormData] = useState({
 const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
     setPostPreviewBox(false)
-    setPostCreated(true)
+    setChatCreated(!chatCreated)
     setFormData({
         recipient : "",
         message : ""
@@ -71,7 +72,9 @@ const sendMessage = async(e)=>{
     const userData = formData.recipient
     const recipientId = userData.split(' ')[0]
     const recipientUsername = userData.split(' ')[1]
-    
+    if(!formData.recipient || !formData.message){
+        return setError({status : true, msg:'Please select a recipient and enter your message'})
+    }
     
     const url = `https://smart-job-search.herokuapp.com/api/v1/messages/${recipientId}/${recipientUsername}`
 
@@ -106,7 +109,8 @@ const sendMessage = async(e)=>{
  
         if(response === 'Success' && formatedMessage){ 
             setPostData(true, "Your post has been submited")
-            // setPostcreated(!postcreated)
+             window.location.href = `/chat/${_id}/${username}/${recipientId}`
+            
         }else if(response === 'Fail'){
             const {message} = result2.data
             setError({status : true, msg : message})
@@ -142,7 +146,13 @@ const sendMessage = async(e)=>{
             const {formatedMessage, response} = result.data
            
             if(response === 'Success'){ 
+                setFormData({
+                    recipient : "",
+                    message : ""
+                })
                 setPostData(true, "Your post has been submited")
+                
+                window.location.href = `/chat/${_id}/${username}/${recipientId}`
             }else if(response === 'Fail'){
                 const {message} = result.data
                 setError({status : true, msg : message})
@@ -153,6 +163,9 @@ const sendMessage = async(e)=>{
     }
 }
 
+if(loggedIn == false){
+    return window.location.href = '/login'
+}
     return <div>
         <Topbar />
         <Sidebar />
@@ -184,7 +197,7 @@ const sendMessage = async(e)=>{
                 
                 </select><br />
                 <textarea type='text' onChange={setFormValue} placeholder='Your message' variant = 'contained'
-                cols='20' rows='5' name='message' className='forminput'></textarea><br />
+                cols='20' rows='5' name='message' className='forminput' value={formData.message}></textarea><br />
                 
                 <Button  className='formbutton' onClick={sendMessage}>Send</Button>
             </form>

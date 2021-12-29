@@ -265,7 +265,7 @@ console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequest
             tempAllUsers.map(allUser => {
                 const {_id : id, username} = allUser
                 const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && !currentUserParsed.connections.includes(allUser._id) && !currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
+                        if(allUser._id !== _id && currentUserParsed && !currentUserParsed.connections.includes(allUser._id) && !currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
                         return <div key={id} className='connetions-box'>
                             <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
                                 <img src={Profile} alt={username} className="connections-img"/>
