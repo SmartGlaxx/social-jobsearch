@@ -16,6 +16,7 @@ import ProfileImage from '../../assets/profile.jfif'
 import CoverImage from '../../assets/cover.jfif'
 import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
+import { LeftNavigation } from '../../Components'
 
 const Connections =()=>{
 const {loggedIn, setLoading, loading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated, setTempAllusers,
@@ -255,7 +256,9 @@ console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequest
     <Sidebar />
     <Backdrop />
     <Grid className='connections' container > 
-        <Grid className='connections-left' item xs ={false} sm={false} md={2} ></Grid> 
+        <Grid className='connections-left' item xs ={false} sm={false} md={2} >
+        <LeftNavigation />   
+        </Grid> 
             <Grid className='connections-center' xs={12} item sm={12} md={10} > 
             <h2>Connections</h2>
             <h4>People you can connect with</h4><br />
@@ -265,7 +268,7 @@ console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequest
             tempAllUsers.map(allUser => {
                 const {_id : id, username} = allUser
                 const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && !currentUserParsed.connections.includes(allUser._id) && !currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
+                        if(allUser._id !== _id && currentUserParsed && !currentUserParsed.connections.includes(allUser._id) && !currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
                         return <div key={id} className='connetions-box'>
                             <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
                                 <img src={Profile} alt={username} className="connections-img"/>

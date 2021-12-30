@@ -1,0 +1,23 @@
+
+.homepage-left{
+    flex : 3;
+    position: sticky;
+    background: var(--background-color);
+    top: 5rem;
+    height: calc(100vh - 5rem);
+    padding: var(--section-padding);
+}
+
+.homepage-left-inner{
+    height: 100%;
+    overflow: auto;
+}
+.homepage-left-top{
+    font-size: var(--header-font-size);
+}
+.homepage-left-ul{
+    list-style-type: none;
+}
+.homepage-left-li{
+    text-decoration: none;
+}

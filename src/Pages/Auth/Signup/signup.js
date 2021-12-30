@@ -19,8 +19,11 @@ const Signup =()=>{
     const navigate = useNavigate()
 
     const setValues =(e)=>{
-        const name = e.target.name
-        const value = e.target.value
+        let name = e.target.name
+        let value = e.target.value
+        if(name=='username'){
+            value = value.replace(/\s+/g, '')
+        }
         setFormValues(prev => {
             return{...prev, [name] : value}
         })

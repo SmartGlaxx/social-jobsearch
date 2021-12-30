@@ -7,6 +7,7 @@
     --background-color-2 : #ffffff;
     --background-color-3 : #e7e7dd;
     --background-color-4 : linear-gradient(to top, rgb(28, 30, 32), rgba(197, 197, 206, 0.3));
+    --border-color  : rgb(30,40,50);
     --box-border-radius: 0.5rem;
     --btn-border-radius: 0.2rem;
     --button-background : #a3a0a0;
@@ -28,6 +29,11 @@
     --color-alert : rgb(223, 5, 5);
     --color-close : rgb(236, 39, 39);
     --color-success : rgb(3, 145, 15);
+    --chat-padding : 0.5rem;
+    --chat-padding-2 : 0.8rem;
+    --chat-padding-3 : 0.5rem;
+    --chat-color-1 : #bae8e8;
+    --chat-color-2 : #e3f6f5; 
     --error-background : rgba(230, 230, 230, 0.9);
     --error-border: 1px solid #888;
     --error-color : rgb(236, 39, 39);
