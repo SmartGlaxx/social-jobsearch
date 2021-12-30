@@ -1,4 +1,4 @@
-import './messages.css'
+ './messages.css'
 import {useState, useEffect} from 'react'
 import {useParams} from "react-router-dom"
 import axios from 'axios'
@@ -9,6 +9,7 @@ import { UseAppContext } from '../../Contexts/app-context'
 import Axios from 'axios'
 import SinglgeMessage from './singleMessage'
 import { Satellite } from '@material-ui/icons'
+import { LeftNavigation } from '../../Components'
 
 const Chat = ()=>{
 
@@ -19,6 +20,7 @@ const Chat = ()=>{
     const [postImage, setPostImage] = useState('')
     const [postPreviewBox, setPostPreviewBox] = useState(false)
     const [chatCreated, setChatCreated] = useState(false)
+    
 
 const {userId, userUsername, id} = useParams()
 const [fetchedMsg, setFetchedMsg] = useState([])
@@ -84,7 +86,6 @@ const setPostData = (value1, value2)=>{
     
     const setFormValue = (e, value1, value2)=>{
         e.preventDefault()
-      console.log('loging,', value1, value2, otherUser )
         setFormData({userID : value1, userName : value2, message : e.target.value})
         
     }
@@ -166,10 +167,13 @@ const sendMessage = async(e)=>{
             }
             
             const result = await Axios(options)
-            console.log(result)
             const {formatedMessage, response} = result.data
            
             if(response === 'Success'){ 
+                const elmnt = document.getElementById("content");
+               setTimeout(() => {
+                elmnt.scrollIntoView();   
+               }, 1000);
                 setPostData(true, "Your post has been submited")
             }else if(response === 'Fail'){
                 const {message} = result.data
@@ -185,6 +189,27 @@ if(loggedIn == false){
     return window.location.href = '/login'
 }
 
+setTimeout(() => {
+    const elmnt = document.getElementById("content");
+    elmnt.scrollIntoView();   
+}, 1000);
+
+// identify an element to observe
+// const elementToObserve = document.querySelector(".observer-container");
+
+// // create a new instance of `MutationObserver` named `observer`,
+// // passing it a callback function
+// const observer = new MutationObserver(function() {
+//     // console.log('callback that runs when observer is triggered');
+//     window.scrollTo(0,document.querySelector(".observer-container").scrollHeight)
+// });
+
+// // call `observe()` on that MutationObserver instance,
+// // passing it the element to observe, and the options object
+// setTimeout(() => {
+//     observer.observe(elementToObserve, {subtree: true, childList: true});    
+// }, 2000);
+
 
     return <div className='chat-main'>
         <Topbar />
@@ -192,23 +217,26 @@ if(loggedIn == false){
         <Backdrop />
         <Grid container className="chats-container-main" >
             <Grid item xs={false} sm={3} className="chat-left">
-                dstrsdsb
+                <LeftNavigation />
             </Grid>
-            <Grid item xs={12} sm={6} className="chats-container">
+            <Grid item xs={12} sm={6} className="chats-container" >
                 <div className = 'chat-title'>{chatUser}</div>
-        {
-            fetchedMsg.map(message =>{   
-                const {_id} = message             
-               return  <SinglgeMessage key={_id} {...message} />
-            })
-        }
-         <div className='sendingBox'>
-        <textarea value={formData.message} type='text' onChange={(e)=>setFormValue(e,otherUser.id, otherUser.username)} placeholder='Your message' variant = 'contained'
-            name='message' className='chatinput'></textarea><br />
+                <div className='observer-container'>
+                {
+                    fetchedMsg.map(message =>{   
+                        const {_id} = message             
+                    return  <SinglgeMessage key={_id} {...message} />
+                    })
+                }
+                <div id='content'></div>
+            </div>
+            <div className='sendingBox'>
+            <textarea value={formData.message} type='text' onChange={(e)=>setFormValue(e,otherUser.id, otherUser.username)} placeholder='Your message' variant = 'contained'
+                name='message' className='chatinput'></textarea><br />
 
-        <Button style={{ position: "absolute", top:"1rem", right:"0rem"}} className='send-btn' onClick={sendMessage}><FaTelegramPlane className='submit-icon'/></Button>
-        {/* <Button  className='formbutton' onClick={sendMessage}>Send</Button> */}
-        </div>
+            <Button style={{ position: "absolute", top:"1rem", right:"0rem"}} className='send-btn' onClick={sendMessage}><FaTelegramPlane className='submit-icon'/></Button>
+            {/* <Button  className='formbutton' onClick={sendMessage}>Send</Button> */}
+            </div>
 
 
 

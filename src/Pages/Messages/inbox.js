@@ -8,7 +8,8 @@ import { FaImages, FaSearch } from 'react-icons/fa'
 import { Link } from 'react-router-dom';
 import axios from 'axios'
 import LoadingIcons from 'react-loading-icons'
-
+import { LeftNavigation } from '../../Components'
+import Profile from "../../assets/profile.jfif"
 
 const Inbox = () =>{
     const {loggedIn, currentUserParsed} = UseAppContext()
@@ -88,12 +89,28 @@ if(loggedIn == false){
     return window.location.href = '/login'
 }
 
+
+
+// create an Observer instance
+// const resizeObserver = new ResizeObserver(entries => 
+//   console.log('Body height changed:', entries[0].target.clientHeight)
+// )
+
+// // start observing a DOM node
+// resizeObserver.observe(document.body)
+
+// click anywhere to rnadomize height
+// window.addEventListener('click', () =>
+//   document.body.style.height = Math.floor((Math.random() * 5000) + 1) + 'px'
+// )
+
     return <div>
         <Topbar />
         <Sidebar />
         <Backdrop />
         <Grid container>
             <Grid item xs={false} sm={2} className="inbox-left">
+                <LeftNavigation />
             </Grid>
             <Grid item xs={12} sm={8} className="inbox-center">
                 <div className='inbox-center-search'>
@@ -105,8 +122,11 @@ if(loggedIn == false){
                     fetchedUsers.length ? fetchedUsers.map(user => {
                      
                             if(userUniqueIds.includes(user._id) && user._id !== userId  ){
-                                const {_id : id, username : otherUser} = user
-                                return <><Link to={`/chat/${userId}/${userUsername}/${id}`}>{otherUser}</Link><br/></>
+                                const {_id : id, username : otherUser, profilePicture} = user
+                                return <div className='inbox-userbox'>
+                                    <img src={profilePicture ? profilePicture : Profile} className='inbox-photo'/>
+                                    <Link to={`/chat/${userId}/${userUsername}/${id}`} className='inbox-name'>{otherUser}</Link><br/>
+                                    </div>
                             }
                          }) : 
 
@@ -117,7 +137,6 @@ if(loggedIn == false){
                      
                    }
                 </div>
-                <div className='read-messages'>Read Messages</div>
             </Grid>
             <Grid item xs={false} sm={2} className="inbox-right">
             </Grid>

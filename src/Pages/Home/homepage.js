@@ -10,6 +10,8 @@ import Axios from 'axios'
 import OtherUsers from '../../Components/OtherUsers/otherUsers'
 import LoadingIcons from 'react-loading-icons'
 import Button from '@restart/ui/esm/Button'
+import { LeftNavigation } from '../../Components'
+
 
 const HomePage =()=>{
 const {loggedIn, loading, setLazyLoading, lazyLoading, currentUser,timelineposts, allUsers, postcreated, 
@@ -281,8 +283,9 @@ const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
     <Sidebar />
     <Backdrop />
     <Grid className='homepage' container > 
-        <Grid className='homepage-left' item xs={false} sm={3} >
-            <div className='homepage-left-inner' >
+         <Grid className='homepage-left' item xs={false} sm={3} >
+           <LeftNavigation />
+        {/*    <div className='homepage-left-inner' >
                 <div className='homepage-left-top'>
                 <Link to={`/userprofile/${_id}/${username}`}>
                     <FaUserAlt /> {username}
@@ -290,7 +293,7 @@ const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
                 </div>
                 <ul className='homepage-left-ul'>
                     <li className='homepage-left-li'>
-                       <Link to={`/connections/${_id}/${username}`}><Button>Connections</Button></Link>
+                       <Link to={`/connections/${_id}/${username}`}>Connections</Link>
                     </li>
                     <li className='homepage-left-li'>
                         My Connections
@@ -299,8 +302,8 @@ const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
                         Jobs
                     </li>
                 </ul>
-            </div>
-        </Grid>
+            </div>*/}
+        </Grid> 
         <Grid className='homepage-center'item xs={12} sm={6} >
             <div className='homepage-center-top'>
                 <div className='homepage-center-top-inner'>

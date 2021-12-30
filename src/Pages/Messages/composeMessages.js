@@ -5,7 +5,7 @@ import { Topbar, Sidebar, Backdrop } from "../../Components"
 import { useState, useEffect } from 'react'
 import Axios from 'axios'
 import { FaImages } from 'react-icons/fa'
-
+import { LeftNavigation } from '../../Components'
 
 const ComposeMessages = () =>{
 const {loggedIn, currentUserParsed, allUsers, setPostCreated} = UseAppContext()
@@ -66,7 +66,7 @@ useEffect(()=>{
 //SEND MESSAGE
 
 const sendMessage = async(e)=>{
-    console.log('sent')
+    
     e.preventDefault()
     const {_id , username} = currentUserParsed
     const userData = formData.recipient
@@ -172,6 +172,7 @@ if(loggedIn == false){
         <Backdrop />
         <Grid container>
             <Grid item xs={false} sm={2} className="compose-left">
+                <LeftNavigation />
             </Grid>
             <Grid item xs={12} sm={8} className="compose-center">
             <div className='compose-center-inner'>
