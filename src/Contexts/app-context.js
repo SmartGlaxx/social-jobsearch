@@ -9,7 +9,7 @@ const SETCUSERFOLLOWINGS = "SETCUSERFOLLOWINGS"; const SETNEWTEMPUSER = 'SETNEWT
 const POSTCREATED = 'POSTCREATED'; const SETSIDEBAR = 'SETSIDEBAR' ; const USERCLICKED = 'USERCLICKED';
 const SETFETCHEDUSER = 'SETFETCHEDUSER'; const COMMENTSENT = 'COMMENTSENT';
 const CURRENTUSERPARSED = 'CURRENTUSERPARSED' ; const TESTVALUE = 'TESTVALUE'; const LAZYLOADING = 'LAZYLOADING';
-const SETCHATUSERNAME = 'SETCHATUSERNAME'
+const SETCHATUSERNAME = 'SETCHATUSERNAME'; const SETREPLYSENT = 'SETREPLYSENT'
 
 
 const getLoggedIn = ()=>{
@@ -65,6 +65,7 @@ const initialState = {
     fetchedUser : {},
 
     commentSent : false,
+    replySent : false,
     testValue : false
 }
 
@@ -285,10 +286,16 @@ const setLazyLoading = (value)=>{
 const setChatUser = (value)=>{
     dispatch({type : SETCHATUSERNAME, payload : value})
 }
+
+const setReplySent = (value)=>{
+    dispatch({type : SETREPLYSENT, payload : value})
+}
+
+
     return <AppContext.Provider value={{
         ...state, setLoading, setLazyLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, 
         setTempAllusers, setPostCreated, openSidebar, setUserClicked, setFetchedUser, 
-        setTimelinePosts, setCommentSent,  setTestValue, setChatUser
+        setTimelinePosts, setCommentSent,  setTestValue, setChatUser, setReplySent
     }}>
     {children}
     </AppContext.Provider>

@@ -8,14 +8,15 @@ import { FaImages } from 'react-icons/fa'
 import { LeftNavigation } from '../../Components'
 
 const ComposeMessages = () =>{
-const {loggedIn, currentUserParsed, allUsers, setPostCreated} = UseAppContext()
+const {loggedIn, currentUserParsed, allUsers, setPostCreated, setTestValue} = UseAppContext()
 const [error, setError] = useState({status : false, msg:''})
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
 const [postPicturePreview, setPostPicturePreview] = useState('')
 const [postImage, setPostImage] = useState('')
 const [postPreviewBox, setPostPreviewBox] = useState(false)
 const [chatCreated, setChatCreated] = useState(false)
-
+const [messageImage, setMessageImage] = useState('')
+const [messageImagePreviewBox, setMessageImagePreviewBox] = useState(false)
 const {_id, username, connections} = currentUserParsed
 const [formData, setFormData] = useState({
     recipient : "",
@@ -163,6 +164,50 @@ const sendMessage = async(e)=>{
     }
 }
 
+const uploadMessagePicture = async(value)=>{
+    const {_id : userId , username} = currentUserParsed
+    // const  url =`${msgImgurl}/uploadmessageimage/${userId}/${username}`
+
+    const fd = new FormData()
+    fd.append("image", value, value.name)
+
+    const result = await Axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadmessageimage/${userId}/${username}`, fd)
+    
+    const {src : imgSrc} = result.data.image
+    
+  const options = {
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createimage/${userId}/${username}`,
+        method : "PATCH",
+        headers : {
+            "Accept" : "application/json",
+            "Content-Type" : "application/json;charset=UTF-8"
+        },
+        data : {
+            userId : userId,
+            username : username,
+            coverPicture : imgSrc
+        }
+    }
+
+    const result2 = await Axios(options)
+
+    const {response, message} = result2.data
+    
+    if(response == 'Success' && message){
+        setMessageImgePicture(message)
+    }else if(response == 'Fail'){
+       setError({status : true, msg : "Fialed to upload profile image"})
+       return setTimeout(()=>{
+            setError({status : false, msg :''})
+    }, 4000)
+    }
+}
+
+const setMessageImgePicture = (value)=>{
+    setMessageImagePreviewBox(false)
+    setTestValue(value)
+}
+
 if(loggedIn == false){
     return window.location.href = '/login'
 }
@@ -171,6 +216,20 @@ if(loggedIn == false){
         <Sidebar />
         <Backdrop />
         <Grid container>
+            {postPreviewBox && 
+                <Grid item xs={12} className='preview-container'>
+                <div className='message-img-preview-box'>
+                    <>
+                        <img src={postPicturePreview} alt='Error loading preview' className='message-img-preview-2'/>
+                        
+                        <div className='pic-upload-btn'>
+                            <Button onClick={()=>setPostPreviewBox(false)}>Cancel</Button>
+                            <Button onClick={()=>uploadMessagePicture(messageImage)}>Send Picture</Button>
+                        </div>
+                        </>
+                </div>
+                </Grid>
+                }
             <Grid item xs={false} sm={2} className="compose-left">
                 <LeftNavigation />
             </Grid>
@@ -212,14 +271,6 @@ if(loggedIn == false){
                         onChange={selectPostPic}/>
                     </label>
                 </div>  
-                {postPreviewBox && 
-                <div className='message-img-preview-box'>
-                    <>
-                        <img src={postPicturePreview} alt='Error loading preview' className='message-img-preview-2'/>
-                        <Button onClick={()=>setPostPreviewBox(false)}>Cancel</Button>
-                    </>
-                </div>
-                }
             </Grid>
             <Grid item xs={false} sm={2} className="compose-right">
             </Grid>

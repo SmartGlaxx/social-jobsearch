@@ -13,12 +13,19 @@ import { useEffect } from "react"
 import Axios from 'axios'
 
 const SinglgeMessage = ({_id, createdAt, message : chat, senderId, senderUsername, receiverId, 
-receiverUsername, img : chatImage, repliedId, repliedUsername, repliedMessage, repliedImg})=>{
-    const {currentUserParsed, allUsers, setPostCreated, setChatUser} = UseAppContext()
+receiverUsername, img : chatImage, repliedId, repliedUsername, repliedMessage, repliedImg, otherUser})=>{
+    const {currentUserParsed, allUsers, setPostCreated, setChatUser, setReplySent, replySent} = UseAppContext()
     const [error, setError] = useState({status : false, msg:''})
     const {userId, userUsername, id} = useParams()
     const [replyBox, setReplyBox] = useState(false)
     const [formData, setFormData] = useState('')
+    
+
+const setPostData = (value1, value2)=>{
+    setReplySent(!replySent)
+    setReplyBox(false)
+    setFormData("")
+}
 
 const setReplyForm = ()=>{
     setReplyBox(true)
@@ -26,7 +33,8 @@ const setReplyForm = ()=>{
 const setChatUserName=()=>{
     setChatUser(receiverUsername)
 }
-console.log(formData)
+
+
 //popover starts
 const useStyles = makeStyles((theme) => ({
   typography: {
@@ -78,8 +86,8 @@ const replyMessage = async(e)=>{
     // if(!formData.recipient || !formData.message){
     //     return setError({status : true, msg:'Please select a recipient and enter your message'})
     // }
-    
-   const replyUrl = `https://smart-job-search.herokuapp.com/api/v1/messages/share/${_id}/${userId}/${username}/${receiverId}/${receiverUsername}`
+    const {id : otherUserId, username : otherUserUsername} = otherUser
+   const replyUrl = `https://smart-job-search.herokuapp.com/api/v1/messages/reply/${_id}/${userId}/${username}/${otherUserId}/${otherUserUsername}`
     
         if(!formData){
             setError({status : true, msg : "Pleae enter a text to post"})
@@ -87,6 +95,7 @@ const replyMessage = async(e)=>{
                 setError({status : false, msg :''})
             }, 4000)
         }
+  
         const options = {
                 url: replyUrl,
                 method : "POST",
@@ -98,8 +107,8 @@ const replyMessage = async(e)=>{
                     //  sharedId, sharedUsername, sharedMessage, shareImg
                     senderId : userId,
                     senderUsername : username,
-                    receiverId : receiverId,
-                    receiverUsername : receiverUsername,
+                    receiverId : otherUserId,
+                    receiverUsername : otherUserUsername,
                     message : formData,
                     repliedId :  senderId,
                     repliedUsername : senderUsername,
@@ -108,34 +117,91 @@ const replyMessage = async(e)=>{
             }
                 }
             
+            const result = await Axios(options)  
+            const {response} = result.data
             
-            const result = await Axios(options)
-            console.log("res share", result, options.data)
-            // const {formatedMessage, response} = result.data
-           
-            // if(response === 'Success'){ 
-            //     const elmnt = document.getElementById("content");
-            //    setTimeout(() => {
-            //     elmnt.scrollIntoView();   
-            //    }, 1000);
-            //     setPostData(true, "Your post has been submited")
-            // }else if(response === 'Fail'){
-            //     const {message} = result.data
-            //     setError({status : true, msg : message})
-            //     setTimeout(()=>{
-            //         setError({status : false, msg :''})
-            //     }, 4000)
-            // }
+            if(response === 'Success'){ 
+                setPostData(true, "Your post has been submited")
+            }else if(response === 'Fail'){
+                const {message} = result.data
+                setError({status : true, msg : message})
+                setTimeout(()=>{
+                    setError({status : false, msg :''})
+                }, 4000)
+            }
     
 }
-    return <div className="chat-container-inner">      
+
+const deleteSent = async(e, _id)=>{
+    e.preventDefault()
+    const {_id : userId , username} = currentUserParsed
+   const deleteUrl = `https://smart-job-search.herokuapp.com/api/v1/messages/deletesent/${_id}`
+    
+        const options = {
+                url: deleteUrl,
+                method : "DELETE",
+                headers : {
+                    "Accept" : "application/json",
+                    "Content-Type" : "application/json;charset=UTF-8"
+                },
+                data:{
+                    userId : userId,
+                    username : username
+                }
+            }
+            
+            const result = await Axios(options)  
+            const {response} = result.data
+            if(response === 'Success'){ 
+                setPostData(true, "Your post has been submited")
+            }else if(response === 'Fail'){
+                const {message} = result.data
+                setError({status : true, msg : message})
+                setTimeout(()=>{
+                    setError({status : false, msg :''})
+                }, 4000)
+            }
+}
+
+const deleteReceived = async(e, _id)=>{
+    e.preventDefault()
+    const {_id : userId , username} = currentUserParsed
+   const deleteUrl = `https://smart-job-search.herokuapp.com/api/v1/messages/deletereceived/${_id}`
+    
+        const options = {
+                url: deleteUrl,
+                method : "DELETE",
+                headers : {
+                    "Accept" : "application/json",
+                    "Content-Type" : "application/json;charset=UTF-8"
+                },
+                data:{
+                    userId : userId,
+                    username : username
+                }
+            }
+            
+            const result = await Axios(options)  
+            const {response} = result.data
+            if(response === 'Success'){ 
+                setPostData(true, "Your post has been submited")
+            }else if(response === 'Fail'){
+                const {message} = result.data
+                setError({status : true, msg : message})
+                setTimeout(()=>{
+                    setError({status : false, msg :''})
+                }, 4000)
+            }
+}
+
+
+
+
+    return <div className="chat-container-inner" >      
     {replyBox && <div>
     <input type = 'text' onChange={(e)=>setFormData(e.target.value)} />
     <Button onClick={replyMessage}>REPLY</Button>
     </div> } 
-    {
-        repliedMessage && <div>{repliedMessage}</div>
-    }
         { 
             senderId == userId ?  <div className='userChat' key={_id}>
                 <button className="chat-options" 
@@ -157,12 +223,21 @@ const replyMessage = async(e)=>{
                 >
                     <Typography className='popover-optons1'>
                         <Button onClick={()=>setReplyForm()}><FaReply /></Button>
-                        <Button ><FaTrash /></Button>
+                        <Button onClick={(e)=>deleteSent(e,_id)}><FaTrash /></Button>
                     </Typography>
                 </Popover>
-                <div className="chatbody">
+                {
+                    repliedMessage && <div className='replies'>{repliedMessage}</div>
+                }
+                {
+                    repliedImg && <div className='replies'><img src={repliedImg} alt='image' style={{width:"100%", height:"100%"}}/></div>
+                }
+                {chat && <div className="chatbody" >
                     {chat}
-                </div>
+                </div>}
+                {
+                    chatImage && <img src={chatImage} alt='image' style={{width:"100%", height:"100%"}}/>
+                }
                <div className="chat-time">
                    <TimeAgo datetime={createdAt} locale='en_US'/>
                </div>
@@ -186,13 +261,31 @@ const replyMessage = async(e)=>{
                     }}
                 >
                     <Typography className='popover-optons2'>
-                        <Button><FaReply /></Button>
-                        <Button ><FaTrash /></Button>
+                        <Button onClick={()=>setReplyForm()}><FaReply /></Button>
+                        <Button onClick={(e)=>deleteReceived(e,_id)}><FaTrash /></Button>
                     </Typography>
                 </Popover>
-                <div className="chatbody">
+                {
+                    repliedMessage && <div className='replies'>{repliedMessage}</div>
+                }
+                {
+                    repliedImg && <div className='replies'><img src={repliedImg} alt='image' style={{width:"100%", height:"100%"}}/></div>
+                }
+                {chat && <div className="chatbody" >
+                    {chat}
+                </div>}
+                {
+                    chatImage && <img src={chatImage} alt='image' style={{width:"100%", height:"100%"}}/>
+                }
+               {/* {chat && chat.length > 0 && <div className="chatbody">
                     {chat}  
-                </div>
+                </div>}
+                {
+                    chatImage && <img src={chatImage} alt='image'/>
+                }
+                {
+                    repliedMessage && <div style={{background : "gray", padding:"2rem", boxSizing :"border-box"}}>{repliedMessage}</div>
+                } */}
                <div className="chat-time">
                     <TimeAgo datetime={createdAt} locale='en_US'/>    
                 </div>

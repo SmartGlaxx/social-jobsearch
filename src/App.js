@@ -15,7 +15,7 @@ function App() {
          <Route path='/userprofile/:id/:username' element={<UserProfile/>} exact/>
          <Route path='/connections/:id/:username' element={<Connections/>} exact/>
          <Route path='/composemessage' element={<ComposeMessages/>} exact/>
-         <Route path='/chat/:userId/:userUsername/:id' element={<Chat/>} exact/>
+         <Route path='/chat/:userId/:userUsername/:id/:otherUsername' element={<Chat/>} exact/>
          <Route path='/inbox' element={<Inbox/>} exact/>
          <Route path='/sentmessages' element={<SentMessages/>} exact/>
          <Route path='*' element={<ErrorPage/>} exact/>

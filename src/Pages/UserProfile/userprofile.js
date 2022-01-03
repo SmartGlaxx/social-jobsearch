@@ -485,14 +485,7 @@ const submit = async(e)=>{
     const {_id , username} = currentUserParsed
     const url = `https://smart-job-search.herokuapp.com/api/v1/posts`
     if(postImage){    
-    // if(formValue){
-    //     setError({status : true, msg : "Pleae enter a text to post"})
-    //    return setTimeout(()=>{
-    //         setError({status : false, msg :''})
-    //     }, 4000)
-    // }
-
-    
+  
     const fd = new FormData()
     fd.append("image", postImage, postImage.name)
 
@@ -639,13 +632,12 @@ if(loading || allUsers.length == 0 || !username && !timelineposts || !fetchedUse
 }
 
 
-console.log( 'adsv ddd',userProfilePicture, fetchedUser)
 
 const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
 
 const firstLetter = username[0]
 const otherLettes = username.slice(1)
-const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
+const usernameCapitalized = firstLetter.toUpperCase() + otherLettes
     return <>
     <Topbar />
     <Sidebar />
@@ -704,14 +696,14 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                         {/* <button className='post-btn' onClick={submit}>Post</button> */}
                     </form>
                     <div className='profile-summary-desktop'>
-                        <h1 className='username'>{usernameCpitalized}</h1>
+                        <h1 className='username'>{usernameCapitalized}</h1>
                         <div className='-followings'>{`Following : ${followings.length}`}</div>
                         <div className='-followings'>{`Followers : ${followers.length}`}</div>
                     </div>
                 </Grid>
                 <Grid className='profile-summary' item xs={12} sm={5}> 
                     <div className='profile-summary-inner'>
-                        <h1 className='username'>{usernameCpitalized}</h1>
+                        <h1 className='username'>{usernameCapitalized}</h1>
                         <div className='-followings'>{`Following : ${followings.length}`}</div>
                         <div className='-followings'>{`Followers : ${followers.length}`}</div>
                     </div>
@@ -730,13 +722,21 @@ const usernameCpitalized = firstLetter.toUpperCase() + otherLettes
                         : <Button className='btn' onClick={(e)=>unfollow(e, userId, userUsername)}>Unfollow</Button>
                         }
                         { currentUserParsed && !currentUserParsed.connections.includes(userId) &&
-                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>
-                            { !currentUserParsed.sentConnectionRequests.includes(userId) ? `Connect Request` : 
-                            !currentUserParsed.receivedConnectionRequests.includes(userId) ? `Cancel Request` : null }
-                        </Button>}
+                            !currentUserParsed.sentConnectionRequests.includes(userId) &&
+                            !currentUserParsed.receivedConnectionRequests.includes(userId) && 
+                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>Connect Request
+                            </Button>
+                        }
+                        {currentUserParsed && !currentUserParsed.connections.includes(userId) &&
+                            (currentUserParsed.receivedConnectionRequests.includes(userId) || 
+                            currentUserParsed.sentConnectionRequests.includes(userId)) &&
+                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>Cancel Request</Button>
+                        } 
                     { currentUserParsed && currentUserParsed.connections.includes(userId) &&
                     <Button className='btn' onClick={(e)=>disconnectRequest(e, userId, userUsername)}>Disconnect</Button>}
-                        <Button className='btn'>Send Message</Button>
+                        <Link to={ `/chat/${idCurrent}/${usernameCurrent}/${userId}/${userUsername}`} >
+                            <Button className='btn'>Send Message</Button>
+                        </Link>
                     </div>
                 </>
                 }

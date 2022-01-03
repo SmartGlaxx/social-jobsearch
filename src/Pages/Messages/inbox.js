@@ -64,8 +64,6 @@ const filterMessages = ()=>{
 
 }
 
-// console.log(newAllMessages)
-
 useEffect(()=>{
   filterMessages()
 },[newAllMessages])
@@ -83,26 +81,15 @@ useEffect(()=>{
     fetchUsers(`https://smart-job-search.herokuapp.com/api/v1/user`)
 },[newAllMessages, userUniqueIds])
 
-// console.log('fetch', fetchedUsers, userUniqueIds, newAllMessages)
+
 
 if(loggedIn == false){
     return window.location.href = '/login'
 }
 
+console.log('userUniqueIds', userUniqueIds)
 
 
-// create an Observer instance
-// const resizeObserver = new ResizeObserver(entries => 
-//   console.log('Body height changed:', entries[0].target.clientHeight)
-// )
-
-// // start observing a DOM node
-// resizeObserver.observe(document.body)
-
-// click anywhere to rnadomize height
-// window.addEventListener('click', () =>
-//   document.body.style.height = Math.floor((Math.random() * 5000) + 1) + 'px'
-// )
 
     return <div>
         <Topbar />
@@ -117,23 +104,29 @@ if(loggedIn == false){
                     <FaSearch className='icons2' />
                     <input type='search' className='message-search' placeholder='Search Messages'/>
                 </div>
+                <Link to='/composemessage'>New Message</Link>
                 <div className='unread-messages'>
                     {
-                    fetchedUsers.length ? fetchedUsers.map(user => {
+                    fetchedUsers.length && userUniqueIds.length ? fetchedUsers.map(user => {
                      
                             if(userUniqueIds.includes(user._id) && user._id !== userId  ){
-                                const {_id : id, username : otherUser, profilePicture} = user
+                                const {_id : id, username : otherUsername, profilePicture} = user
+                                let otherUername
+                                if(otherUsername){
+                                    otherUername = otherUsername.slice(0,1).toUpperCase().concat(otherUsername.slice(1).toLowerCase())
+                                }
                                 return <div className='inbox-userbox'>
                                     <img src={profilePicture ? profilePicture : Profile} className='inbox-photo'/>
-                                    <Link to={`/chat/${userId}/${userUsername}/${id}`} className='inbox-name'>{otherUser}</Link><br/>
+                                    <Link to={`/chat/${userId}/${userUsername}/${id}/${otherUsername}`} className='inbox-name'>{otherUername}</Link><br/>
                                     </div>
                             }
                          }) : 
-
                          <div style={{width: "100%",height : "5rem", 
                              display: 'grid', placeItems: "center"}}>
+                                <h4>No Messages in your inbox</h4>
                              <LoadingIcons.Puff  stroke="#555" strokeOpacity={.9} />
-                         </div>     
+                         </div>  
+                          
                      
                    }
                 </div>

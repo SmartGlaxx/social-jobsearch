@@ -26,6 +26,7 @@
     --color3 : rgb(246, 246, 255);
     --color4 : #335;
     --color5 : #fff;
+    --color6 : #a09e22;
     --color-alert : rgb(223, 5, 5);
     --color-close : rgb(236, 39, 39);
     --color-success : rgb(3, 145, 15);
@@ -47,7 +48,7 @@
     --header-font-size-4 : 0.9rem;
     --header-font-size-5 : 0.8rem;
     --header-section-padding: 0 1rem;
-    --icon-li-padding : 1rem;
+    --icon-li-padding : 0.3rem 1rem;
     --icon-li-padding2 : 0.6rem;
     --icon-size1 : 1.8rem;
     --icon-size2 : 1.2rem;
