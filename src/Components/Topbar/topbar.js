@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
@@ -11,6 +11,7 @@ import {FaSearch, FaHome, FaPeopleArrows, FaRegClock, FaUserFriends, FaBriefcase
 import { UseAppContext } from '../../Contexts/app-context'
 import ListIcon from '@material-ui/icons/List';
 
+
 //for popover starts
 const useStyles = makeStyles((theme) => ({
     typography: {
@@ -21,14 +22,26 @@ const useStyles = makeStyles((theme) => ({
   //for popover ends
 
 const Topbar =()=>{
-     const {setLoggedIn, loggedIn, setCurrentUser, currentUser, currentUserParsed, openSidebar} = UseAppContext()
+     const {setLoggedIn, loggedIn, allUsers, setCurrentUser, currentUser, currentUserParsed, openSidebar} = UseAppContext()
+     const {_id, username, receivedConnectionRequests} = currentUserParsed
+     const [receivedRequests, setReceivedRequests] = useState([])
+     let usernameCapitalized = ''
+     if(username){
+         usernameCapitalized = username.slice(0,1).toUpperCase().concat(username.slice(1).toLowerCase())
+     }
+     
+     // get request users 
+     
+     const requestUsers = allUsers.filter(user => receivedConnectionRequests.includes(user._id))
+    //  setReceivedRequests(requestUsers)
 
-     const {_id, username, receivedUnreadMessages} = currentUserParsed
+    //  console.log('receivedRequests', receivedRequests)
 
      //popover function start
      const classes = useStyles();
      const [anchorEl, setAnchorEl] = React.useState(null);
      const [anchorEl2, setAnchorEl2] = React.useState(null);
+     const [anchorEl3, setAnchorEl3] = React.useState(null);
    
      const handleClick = (event) => {
        setAnchorEl(event.currentTarget);
@@ -37,6 +50,10 @@ const Topbar =()=>{
      const handleClick2 = (event) => {
         setAnchorEl2(event.currentTarget);
       };
+      
+    const handleClick3 = (event) => {
+    setAnchorEl3(event.currentTarget);
+    };
    
      const handleClose = () => {
        setAnchorEl(null);
@@ -44,11 +61,17 @@ const Topbar =()=>{
      const handleClose2 = () => {
         setAnchorEl2(null);
       };
+
+    const handleClose3 = () => {
+        setAnchorEl3(null);
+    };
    
      const open = Boolean(anchorEl);
      const open2 = Boolean(anchorEl2);
+     const open3 = Boolean(anchorEl3);
      const id = open ? 'simple-popover' : undefined;
      const id2 = open2 ? 'simple-popover2' : undefined;
+     const id3 = open3 ? 'simple-popover3' : undefined;
      //popover function end
 
      const setLoginValues =(value, loginData)=>{
@@ -69,15 +92,21 @@ const Topbar =()=>{
         <Grid className="topCenter" item xs ={false} sm={5}>
             <div className="topCenter-inner">
                 <ul className="topCenter-ul">
-                    <li className="topCenter-li">
-                    <FaHome className="icons"  size='25'/>
-                    </li>
-                    <li className="topCenter-li">
-                    <Link to={`/connections/${_id}/${username}`}><FaPeopleArrows className="icons"  size='25'/></Link>
-                    </li>
-                    <li className="topCenter-li">
-                   <FaUserFriends className="icons"  size='25'/>
-                    </li>
+                    <Link to='/' className="topCenter-li">
+                        <li >
+                            <FaHome className="icons"  size='25'/>
+                        </li>
+                    </Link>
+                    <Link to={`/connections/${_id}/${username}`} className="topCenter-li">
+                        <li >
+                            <FaPeopleArrows className="icons"  size='25'/>
+                        </li>
+                    </Link>
+                    <Link to={`/follows/${_id}/${username}`} className="topCenter-li">
+                        <li className="topCenter-li">
+                            <FaUserFriends className="icons"  size='25'/>
+                        </li>
+                    </Link>
                     <li className="topCenter-li">
                     <FaBriefcase className="icons"  size='25'/>
                     </li>
@@ -97,7 +126,36 @@ const Topbar =()=>{
                         <FaRocketchat  className="icons2"/>
                     </li>
                     <li className='topRight-li'>
-                        <div className='icon2-text'><FaBell  className="icons2"/>{ receivedUnreadMessages && receivedUnreadMessages.length}</div>
+                        <div className='icon2-text'>
+                            <FaBell  className="icons2"
+                            aria-describedby={id} variant="contained" onClick={handleClick3}/>{ receivedConnectionRequests && receivedConnectionRequests.length}
+
+                        <Popover
+                            id={id}
+                            open={open3}
+                            anchorEl={anchorEl3}
+                            onClose={handleClose3}
+                            anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                            }}
+                            transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                            }}
+                        >
+                           {requestUsers.map(user =>{
+                               const {_id, username} = user
+                               return <Link key={_id} to={`/userprofile/${_id}/${username}`}>{username}</Link>
+                           })}
+                        <Button className='link-btn'>
+                            <Link to={`/userprofile/${_id}/${username}`} className='link'>
+                                <FaUserAlt className='nav-icon' /> <span  className='link'>{usernameCapitalized}</span>
+                            </Link>
+                        </Button>
+                        </Popover>
+
+                        </div>
                     </li>
                     <li className='topRight-li'>
                         <FaChevronCircleDown  className="icons2" aria-describedby={id} variant="contained" color="primary" onClick={handleClick}/>
@@ -116,14 +174,22 @@ const Topbar =()=>{
                             }}
                         >
                            
-                        <Button><Link to={`/userprofile/${_id}/${username}`}>Your Profile</Link></Button><br/>
-                        <Button aria-describedby={id2} onClick={handleClick2}><FaTools />Messages</Button><br/>
-                        <Button><Link to='/settings'><FaTools />Settings</Link></Button><br/>
+                        <Button className='link-btn'>
+                            <Link to={`/userprofile/${_id}/${username}`} className='link'>
+                                <FaUserAlt className='nav-icon' /> <span  className='link'>{usernameCapitalized}</span>
+                            </Link>
+                        </Button><br/>
+                        <Button aria-describedby={id2} onClick={handleClick2} className='link-btn'>
+                            <FaTools className='nav-icon link' /><span className='link'>Messages</span>
+                        </Button><br/>
+                        <Button className='link-btn'>
+                            <Link to='/settings' className='link'><FaTools className='nav-icon' />
+                            <span  className='link'>Settings</span></Link>
+                        </Button><br/>
                         <Divider />
-                        {loggedIn && <Button onClick={()=>setLoginValues(false, {})}>Log out</Button>}
-                           
+                        {loggedIn && <Button onClick={()=>setLoginValues(false, {})} className='link-btn'>
+                            <span  className='log-out' >Log out</span></Button>}
                         </Popover>
-
                         <Popover
                             id={id2}
                             open={open2}
@@ -138,9 +204,12 @@ const Topbar =()=>{
                             horizontal: 'center',
                             }}
                         >
-                            <Button><Link to='/composemessage'>New Message</Link></Button><br />
-                            <Button><Link to='/inbox'>Inbox</Link></Button><br />
-                            <Button><Link to='/sent'>Sent Messages</Link></Button>
+                            <Button className='link-btn'>
+                                <Link to='/composemessage' className='link'>New Message</Link>
+                            </Button><br />
+                            <Button className='link-btn'>
+                                <Link to='/inbox' className='link'>Inbox</Link>
+                            </Button>
                         </Popover>
                     </li>
                 </ul>

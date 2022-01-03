@@ -9,12 +9,17 @@ const LeftNavigation = ()=>{
         setPostCreated, currentUserParsed, fetchedUser} = UseAppContext()
     const {_id : userId, username : userUsername, followings, followers, 
         profilePicture : userProfilePicture, coverPicture : userCoverPicture} = fetchedUser
-    const {_id , username} = JSON.parse(currentUser)
+    const {_id , username} = currentUserParsed
+
+    let usernameCapitalized = ''
+    if(username){
+        usernameCapitalized = username.slice(0,1).toUpperCase().concat(username.slice(1).toLowerCase())
+    }
 
     return   <div className='homepage-left-inner' >
         <div className='homepage-left-top'>
         <Link to={`/userprofile/${_id}/${username}`}>
-            <FaUserAlt /> {username}
+            <FaUserAlt /> {usernameCapitalized}
         </Link>
         </div>
         <ul className='homepage-left-ul'>

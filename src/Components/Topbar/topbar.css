@@ -152,7 +152,23 @@
     color:#555;
     background: var(--background-color-2);
 }
+.link{
+     margin: 0 0.4rem;
+    color: var(--color);
+    text-decoration: none;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+   
+}
 
+.link-btn{
+    width:100%;
+}
+.log-out{
+    width:100%;
+    color: var(--color-alert);
+    text-transform: capitalize;
+}
 
 
 

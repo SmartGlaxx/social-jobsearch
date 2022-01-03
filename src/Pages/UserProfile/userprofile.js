@@ -722,13 +722,21 @@ const usernameCapitalized = firstLetter.toUpperCase() + otherLettes
                         : <Button className='btn' onClick={(e)=>unfollow(e, userId, userUsername)}>Unfollow</Button>
                         }
                         { currentUserParsed && !currentUserParsed.connections.includes(userId) &&
-                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>
-                            { !currentUserParsed.sentConnectionRequests.includes(userId) ? `Connect Request` : 
-                            !currentUserParsed.receivedConnectionRequests.includes(userId) ? `Cancel Request` : null }
-                        </Button>}
+                            !currentUserParsed.sentConnectionRequests.includes(userId) &&
+                            !currentUserParsed.receivedConnectionRequests.includes(userId) && 
+                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>Connect Request
+                            </Button>
+                        }
+                        {currentUserParsed && !currentUserParsed.connections.includes(userId) &&
+                            (currentUserParsed.receivedConnectionRequests.includes(userId) || 
+                            currentUserParsed.sentConnectionRequests.includes(userId)) &&
+                            <Button onClick={(e)=>connectRequest(e, id, username)} className='btn'>Cancel Request</Button>
+                        } 
                     { currentUserParsed && currentUserParsed.connections.includes(userId) &&
                     <Button className='btn' onClick={(e)=>disconnectRequest(e, userId, userUsername)}>Disconnect</Button>}
-                        <Button className='btn'>Send Message</Button>
+                        <Link to={ `/chat/${idCurrent}/${usernameCurrent}/${userId}/${userUsername}`} >
+                            <Button className='btn'>Send Message</Button>
+                        </Link>
                     </div>
                 </>
                 }
