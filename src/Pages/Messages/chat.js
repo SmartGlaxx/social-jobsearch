@@ -2,7 +2,8 @@
 import {useState, useEffect} from 'react'
 import {useParams} from "react-router-dom"
 import axios from 'axios'
-import { FaUserAlt, FaUsers, FaImages, FaHome, FaUser, FaCamera, FaEllipsisH, FaTelegramPlane } from 'react-icons/fa'
+import { FaUserAlt, FaUsers, FaImages, FaHome, FaUser, FaCamera, FaEllipsisH, FaTelegramPlane,
+    FaFileImage } from 'react-icons/fa'
 import { Topbar, Sidebar, Backdrop } from "../../Components"
 import {Button, Grid} from '@material-ui/core'
 import { UseAppContext } from '../../Contexts/app-context'
@@ -13,16 +14,19 @@ import { LeftNavigation } from '../../Components'
 
 const Chat = ()=>{
 
-    const {loggedIn, currentUserParsed, allUsers, setChatUser, chatUser} = UseAppContext()
+    const {loggedIn, setTestValue, currentUserParsed, allUsers, setChatUser, chatUser, replySent } = UseAppContext()
     const [error, setError] = useState({status : false, msg:''})
     const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
-    const [postPicturePreview, setPostPicturePreview] = useState('')
-    const [postImage, setPostImage] = useState('')
+    const [messageImagePreview, setMessageImagePreview] = useState('')
+    const [messageImage, setMessageImage] = useState('')
     const [postPreviewBox, setPostPreviewBox] = useState(false)
+    // const [fetchedOtherUser, setFetchedOtherUser] = useState({})
     const [chatCreated, setChatCreated] = useState(false)
-    
+    const [messageImagePreviewBox, setMessageImagePreviewBox] = useState(false)
+    const msgImgurl = 'https://smart-job-search.herokuapp.com/api/v1/messages'
+    let chatUsername = ''
 
-const {userId, userUsername, id} = useParams()
+const {userId, userUsername, id, otherUsername} = useParams()
 const [fetchedMsg, setFetchedMsg] = useState([])
 const [formData, setFormData] = useState({
     userID : '',
@@ -35,9 +39,10 @@ const [otherUser, setOtherUser] = useState({
     username : ""
 })
 
+
 const setPostData = (value1, value2)=>{
     setAlertMsg({status : value1, msg : value2})
-    setPostPreviewBox(false)
+    setMessageImagePreviewBox(false)
     setChatCreated(!chatCreated)
     setFormData({
         userName : "",
@@ -46,7 +51,9 @@ const setPostData = (value1, value2)=>{
 }
 
     const fetchUsersChat = async(fetchurl)=>{
+        
         const result = await axios(fetchurl)
+
         const fetchedMsg = result.data.allUserMessages 
         const filtredForNull = fetchedMsg.filter(item => item !== null)
         const fetchedMsgSorted = filtredForNull.sort((a,b)=>{
@@ -82,14 +89,41 @@ const setPostData = (value1, value2)=>{
 
     useEffect(()=>{
         fetchUsersChat(`https://smart-job-search.herokuapp.com/api/v1/messages/chat/${userId}/${userUsername}/${id}`)
-    },[chatCreated])
+    },[chatCreated, replySent])
     
     const setFormValue = (e, value1, value2)=>{
         e.preventDefault()
-        setFormData({userID : value1, userName : value2, message : e.target.value})
+        setFormData({userID : value1, userName : value2,  message : e.target.value})
         
     }
 
+
+    //select message pic
+const selectMessagePic = (e, value1, value2)=>{
+    e.preventDefault()
+    setMessageImage(e.target.files[0])
+    setFormData({userID : value1, userName : value2})
+}
+
+useEffect(()=>{
+    if(messageImage){
+        const fileReader = new FileReader()
+        fileReader.onloadend = ()=>{
+            setMessageImagePreview(fileReader.result)
+        }
+        fileReader.readAsDataURL(messageImage)
+        setMessageImagePreviewBox(true)
+    
+    }else{
+        return
+    }
+},[messageImage])
+
+
+// const setMessagePicture = (value)=>{
+//     setCoverPreviewBox(false)
+//     setTestValue(value)
+// }
 
     //SEND MESSAGE
 
@@ -104,15 +138,21 @@ const sendMessage = async(e)=>{
     const {userID : recipientId, userName : recipientUsername} = formData
     const url = `https://smart-job-search.herokuapp.com/api/v1/messages/${recipientId}/${recipientUsername}`
 // console.log('formData',formData, currentUserParsed)
-    if(postImage){        
+    if(!formData.message && ! messageImage){
+        return 
+    }
+    if(messageImage){      
     const fd = new FormData()
-    fd.append("image", postImage, postImage.name)
-
+    fd.append("image", messageImage, messageImage.name)
+    const {_id , username} = currentUserParsed
     const result = await Axios.post(`https://smart-job-search.herokuapp.com/api/v1/messages/uploadmessageimage/${_id}/${username}`, fd)
 
     const {src : imgSrc} = result.data.image
-
-        const options = {
+    let options = {}
+    const {userID : recipientId, userName : recipientUsername} = formData
+    console.log(recipientUsername, recipientId)
+    if(formData.message){
+         options = {
             url: url,
             method : "POST",
             headers : {
@@ -120,7 +160,7 @@ const sendMessage = async(e)=>{
                 "Content-Type" : "application/json;charset=UTF-8"
             },
             data:{
-                senderId : _id,
+                senderId : userId,
                 senderUsername : username,
                 receiverId : recipientId,
                 receiverUsername : recipientUsername,
@@ -128,12 +168,30 @@ const sendMessage = async(e)=>{
                 img : imgSrc
             }
         }
+    }else{
+         options = {
+            url: url,
+            method : "POST",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                senderId : userId,
+                senderUsername : username,
+                receiverId : recipientId,
+                receiverUsername : recipientUsername,
+                img : imgSrc
+            }
+        }
+    }
+       
 
-        const result2 = await Axios(options)
-        
+         const result2 = await Axios(options)
         const {response, formatedMessage} = result2.data
- 
+       
         if(response === 'Success' && formatedMessage){ 
+            // const {_doc} = response
             setPostData(true, "Your post has been submited")
             // setPostcreated(!postcreated)
         }else if(response === 'Fail'){
@@ -150,6 +208,7 @@ const sendMessage = async(e)=>{
                 setError({status : false, msg :''})
             }, 4000)
         }
+        console.log(recipientUsername)
             const options = {
                 url: url,
                 method : "POST",
@@ -185,6 +244,52 @@ const sendMessage = async(e)=>{
     }
 }
 
+//upload message image and return url 
+
+const uploadMessagePicture = async(value)=>{
+    const {_id : userId , username} = currentUserParsed
+    // const  url =`${msgImgurl}/uploadmessageimage/${userId}/${username}`
+
+    const fd = new FormData()
+    fd.append("image", value, value.name)
+
+    const result = await axios.post(`https://smart-job-search.herokuapp.com/api/v1/user/uploadmessageimage/${userId}/${username}`, fd)
+    
+    const {src : imgSrc} = result.data.image
+    
+  const options = {
+        url: `https://smart-job-search.herokuapp.com/api/v1/user/createimage/${userId}/${username}`,
+        method : "PATCH",
+        headers : {
+            "Accept" : "application/json",
+            "Content-Type" : "application/json;charset=UTF-8"
+        },
+        data : {
+            userId : userId,
+            username : username,
+            coverPicture : imgSrc
+        }
+    }
+
+    const result2 = await Axios(options)
+
+    const {response, message} = result2.data
+    
+    if(response == 'Success' && message){
+        setMessageImgePicture(message)
+    }else if(response == 'Fail'){
+       setError({status : true, msg : "Fialed to upload profile image"})
+       return setTimeout(()=>{
+            setError({status : false, msg :''})
+    }, 4000)
+    }
+}
+
+const setMessageImgePicture = (value)=>{
+    setMessageImagePreviewBox(false)
+    setTestValue(value)
+}
+
 if(loggedIn == false){
     return window.location.href = '/login'
 }
@@ -193,39 +298,40 @@ setTimeout(() => {
     const elmnt = document.getElementById("content");
     elmnt.scrollIntoView();   
 }, 1000);
+if(otherUsername){
+    chatUsername = otherUsername.slice(0,1).toUpperCase().concat(otherUsername.slice(1).toLowerCase())
+}
 
-// identify an element to observe
-// const elementToObserve = document.querySelector(".observer-container");
-
-// // create a new instance of `MutationObserver` named `observer`,
-// // passing it a callback function
-// const observer = new MutationObserver(function() {
-//     // console.log('callback that runs when observer is triggered');
-//     window.scrollTo(0,document.querySelector(".observer-container").scrollHeight)
-// });
-
-// // call `observe()` on that MutationObserver instance,
-// // passing it the element to observe, and the options object
-// setTimeout(() => {
-//     observer.observe(elementToObserve, {subtree: true, childList: true});    
-// }, 2000);
-
+const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
 
     return <div className='chat-main'>
         <Topbar />
         <Sidebar />
         <Backdrop />
         <Grid container className="chats-container-main" >
+        {messageImagePreviewBox && 
+         <Grid item xs={12} className='preview-container'>
+                <div className='message-img-preview-box'>
+                    <div>
+                        <img src={messageImagePreview} alt='Error loading preview' className='message-img-preview'/>
+                        <div className='pic-upload-btn'>
+                            <Button onClick={()=>setMessageImagePreviewBox(false)}>Cancel</Button>
+                            <Button onClick={sendMessage}>Send Picture</Button>
+                        </div>
+                    </div>
+                </div>
+                </Grid>
+            }
             <Grid item xs={false} sm={3} className="chat-left">
                 <LeftNavigation />
             </Grid>
             <Grid item xs={12} sm={6} className="chats-container" >
-                <div className = 'chat-title'>{chatUser}</div>
+                <div className = 'chat-title'>{chatUsername}</div>
                 <div className='observer-container'>
                 {
                     fetchedMsg.map(message =>{   
                         const {_id} = message             
-                    return  <SinglgeMessage key={_id} {...message} />
+                    return  <SinglgeMessage key={_id} {...message} otherUser={otherUser} />
                     })
                 }
                 <div id='content'></div>
@@ -234,7 +340,29 @@ setTimeout(() => {
             <textarea value={formData.message} type='text' onChange={(e)=>setFormValue(e,otherUser.id, otherUser.username)} placeholder='Your message' variant = 'contained'
                 name='message' className='chatinput'></textarea><br />
 
-            <Button style={{ position: "absolute", top:"1rem", right:"0rem"}} className='send-btn' onClick={sendMessage}><FaTelegramPlane className='submit-icon'/></Button>
+            {/* {messageImagePreviewBox && 
+                <div className='cover-img-preview-box'>
+                    <img src={messageImagePreview} alt='Error loading preview' className='message-img-preview'/>
+                    <div className='pic-upload-btn'>
+                        <Button onClick={()=>setMessageImagePreviewBox(false)}>Cancel</Button>
+                        <Button onClick={()=>uploadMessagePicture(messageImage)}>Send Picture</Button>
+                    </div>
+                </div>
+                } */}
+                <form className="message-img-label-box" enctype="multipart/form-data">
+                    {idCurrent == userId && usernameCurrent == userUsername && <label htmlFor='messagePicture'  >
+                        {/* <div style={{ position: "absolute", top:"0rem", right:"0rem", width:"2rem", background:"green", padding:"0.0.4rem"}}>  */}
+                            <FaFileImage  className='msg-img-upload-icon' size='23' /> 
+                        {/* </div> */}
+                    <input id='messagePicture' type='file' name='messagePic' className='homepage-center-input2' 
+                    onChange={(e)=>selectMessagePic(e, otherUser.id, otherUser.username)}/>
+                   
+                    </label>}
+                    
+                </form>
+                <div className='send-btn' onClick={sendMessage}>
+                    <FaTelegramPlane className='submit-icon' size='23'/>
+                </div>
             {/* <Button  className='formbutton' onClick={sendMessage}>Send</Button> */}
             </div>
 
