@@ -2,7 +2,8 @@ import './left-navigation.css'
 import Grid from "react-loading-icons/dist/components/grid"
 import { UseAppContext } from "../../Contexts/app-context"
 import { Link } from "react-router-dom"
-import { FaUserAlt, FaImages, FaExclamationCircle } from 'react-icons/fa'
+import { FaUserAlt, FaImages, FaExclamationCircle, FaPeopleArrows, FaUserFriends,
+    FaBriefcase} from 'react-icons/fa'
 
 const LeftNavigation = ()=>{
     const {loggedIn, loading, setLazyLoading, lazyLoading, currentUser,timelineposts, allUsers, postcreated, 
@@ -16,7 +17,7 @@ const LeftNavigation = ()=>{
         usernameCapitalized = username.slice(0,1).toUpperCase().concat(username.slice(1).toLowerCase())
     }
 
-    return   <div className='homepage-left-inner' >
+    return   <div className='page-left-inner' >
         <div className='homepage-left-top'>
         <Link to={`/userprofile/${_id}/${username}`}>
             <FaUserAlt /> {usernameCapitalized}
@@ -24,13 +25,13 @@ const LeftNavigation = ()=>{
         </div>
         <ul className='homepage-left-ul'>
             <li className='homepage-left-li'>
-               <Link to={`/connections/${_id}/${username}`}>Connections</Link>
+              <FaPeopleArrows /> <Link to={`/connections/${_id}/${username}`}>Connections</Link>
             </li>
             <li className='homepage-left-li'>
-                My Connections
+               <FaUserFriends /><Link to={`/follows/${_id}/${username}`}>Follows</Link>
             </li>
             <li className='homepage-left-li'>
-                Jobs
+               <FaBriefcase /> Jobs
             </li>
         </ul>
     </div>

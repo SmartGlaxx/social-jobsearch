@@ -8,9 +8,10 @@
     padding: var(--section-padding);
 }
 
-.homepage-left-inner{
+.page-left-inner{
     height: 100%;
     overflow: auto;
+    padding: var(--section-padding)
 }
 .homepage-left-top{
     font-size: var(--header-font-size);
