@@ -10,7 +10,7 @@ import {FaSearch, FaHome, FaPeopleArrows, FaRegClock, FaUserFriends, FaBriefcase
     FaChevronCircleDown, FaTools} from 'react-icons/fa' 
 import { UseAppContext } from '../../Contexts/app-context'
 import ListIcon from '@material-ui/icons/List';
-
+import { Search } from '..';
 
 //for popover starts
 const useStyles = makeStyles((theme) => ({
@@ -25,14 +25,16 @@ const Topbar =()=>{
      const {setLoggedIn, loggedIn, allUsers, setCurrentUser, currentUser, currentUserParsed, openSidebar} = UseAppContext()
      const {_id, username, receivedConnectionRequests} = currentUserParsed
      const [receivedRequests, setReceivedRequests] = useState([])
+     const [searchTerm, setSearchTerm] = useState()
      let usernameCapitalized = ''
+
      if(username){
          usernameCapitalized = username.slice(0,1).toUpperCase().concat(username.slice(1).toLowerCase())
      }
      
      // get request users 
      
-     const requestUsers = allUsers.filter(user => receivedConnectionRequests.includes(user._id))
+     const requestUsers = allUsers.filter(user => user.receivedConnectionRequests.includes(user._id))
     //  setReceivedRequests(requestUsers)
 
     //  console.log('receivedRequests', receivedRequests)
@@ -79,14 +81,24 @@ const Topbar =()=>{
         setLoggedIn(value)
     }
 
-
+  
      
     return <Grid className='topbarContainer' container>
-        <Grid className="topLeft" item xs ={9} sm={3}>
+        <Grid className="topLeft" item xs ={9} sm={3} >
             <div className='mainlogo'>SC</div>
+            <div style={{display:"block"}}>
             <div className='topLeft-inner'>
                 <FaSearch className='icons2' />
-                <input type='search' className='search' placeholder='Search SmartConnect'/>
+                <input type='search' className='search' onChange={(e)=>setSearchTerm(e.target.value)}
+                placeholder='Search SmartConnect'/>
+            </div>
+            {
+            searchTerm  && <div
+                style={{background : "red", width:"13rem", height: "auto", maxHeight:"20rem",
+                padding:"3rem 1rem", overflowY:"auto", overflowX:"hidden",
+                position: "absolute"}}>
+                    Search results</div>
+            }
             </div>
         </Grid>
         <Grid className="topCenter" item xs ={false} sm={5}>
@@ -144,15 +156,23 @@ const Topbar =()=>{
                             horizontal: 'center',
                             }}
                         >
-                           {requestUsers.map(user =>{
-                               const {_id, username} = user
-                               return <Link key={_id} to={`/userprofile/${_id}/${username}`}>{username}</Link>
-                           })}
-                        <Button className='link-btn'>
-                            <Link to={`/userprofile/${_id}/${username}`} className='link'>
-                                <FaUserAlt className='nav-icon' /> <span  className='link'>{usernameCapitalized}</span>
-                            </Link>
-                        </Button>
+                            <Button className=''>
+                           {
+                               requestUsers.length > 0 ? 
+                               <>
+                               <h4>Received Requests</h4>
+                               {requestUsers.map(user =>{
+                                   const {_id, username} = user
+                                   return <Button className='link-btn'>
+                                            <Link key={_id} to={`/userprofile/${_id}/${username}`} className='link'>
+                                                {username}
+                                            </Link>
+                                       </Button>
+                               })} 
+                               </> :
+                               <Typography>No Notifications </Typography>
+                           }
+                           </Button>
                         </Popover>
 
                         </div>

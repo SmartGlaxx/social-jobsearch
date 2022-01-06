@@ -283,6 +283,7 @@
     color: var(--color-success);
     font-size: var(--icon-size2);
     padding: 0rem; 
+    cursor : pointer
 }
 .msg-img-upload-icon{
     cursor: pointer;
@@ -329,6 +330,24 @@
     place-items : center
 }
 
+.reply-box{
+    display: flex;
+    border : none;
+    position: absolute;
+    top: calc(100vh - 6.5rem);
+    z-index : 5;
+    margin-left: -1rem;
+    width: 50%;
+}
+.reply-input{
+    padding:var(--input-padding2);
+    width: 80%
+}
+
+/* .reply-btn{
+    width: 5rem;
+    display: none;
+} */
 
 
 
@@ -368,6 +387,9 @@
     }
     .message-img-preview-2{
         width: 100vw;
+    }
+    .reply-box{
+        width: 100%;
     }
     .preview-container{
         /* height: 140vh; */

@@ -14,18 +14,26 @@ import Axios from 'axios'
 
 const SinglgeMessage = ({_id, createdAt, message : chat, senderId, senderUsername, receiverId, 
 receiverUsername, img : chatImage, repliedId, repliedUsername, repliedMessage, repliedImg, otherUser})=>{
-    const {currentUserParsed, allUsers, setPostCreated, setChatUser, setReplySent, replySent} = UseAppContext()
+    const {currentUserParsed, allUsers, setPostCreated, setChatUser, setReplySent, replySent,
+        setScrollIntoViewValue, scrollIntoViewValue} = UseAppContext()
     const [error, setError] = useState({status : false, msg:''})
     const {userId, userUsername, id} = useParams()
     const [replyBox, setReplyBox] = useState(false)
     const [formData, setFormData] = useState('')
     
 
+//scroll-into-view function
+const callScrollIntoViewFunc = ()=>{
+    setScrollIntoViewValue(!scrollIntoViewValue)
+}
+
 const setPostData = (value1, value2)=>{
     setReplySent(!replySent)
     setReplyBox(false)
     setFormData("")
+    callScrollIntoViewFunc()
 }
+
 
 const setReplyForm = ()=>{
     setReplyBox(true)
@@ -33,6 +41,7 @@ const setReplyForm = ()=>{
 const setChatUserName=()=>{
     setChatUser(receiverUsername)
 }
+
 
 
 //popover starts
@@ -198,10 +207,12 @@ const deleteReceived = async(e, _id)=>{
 
 
     return <div className="chat-container-inner" >      
-    {replyBox && <div>
-    <input type = 'text' onChange={(e)=>setFormData(e.target.value)} />
+    {/* {
+        replyBox && <div style={{boder : "none", position:"relative", background: "red", float:"right", zIndex : "10"}}>
+    <input type = 'text' onChange={(e)=>setFormData(e.target.value)} /><br />
     <Button onClick={replyMessage}>REPLY</Button>
-    </div> } 
+    </div> 
+    }  */}
         { 
             senderId == userId ?  <div className='userChat' key={_id}>
                 <button className="chat-options" 
@@ -277,15 +288,6 @@ const deleteReceived = async(e, _id)=>{
                 {
                     chatImage && <img src={chatImage} alt='image' style={{width:"100%", height:"100%"}}/>
                 }
-               {/* {chat && chat.length > 0 && <div className="chatbody">
-                    {chat}  
-                </div>}
-                {
-                    chatImage && <img src={chatImage} alt='image'/>
-                }
-                {
-                    repliedMessage && <div style={{background : "gray", padding:"2rem", boxSizing :"border-box"}}>{repliedMessage}</div>
-                } */}
                <div className="chat-time">
                     <TimeAgo datetime={createdAt} locale='en_US'/>    
                 </div>
@@ -293,6 +295,13 @@ const deleteReceived = async(e, _id)=>{
             : null
             
         }
+            {
+                replyBox && <div className='reply-box'>
+                <input type = 'text' onChange={(e)=>setFormData(e.target.value)}  className='reply-input'/><br />
+                <Button onClick={replyMessage}  className='reply-btn' style={{background:"var(--button-background)"}}>REPLY</Button>
+                </div> 
+            }
+
 </div>
 }
 export default SinglgeMessage

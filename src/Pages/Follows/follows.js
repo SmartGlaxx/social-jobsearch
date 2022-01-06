@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import './connections.css'
+import './follows.css'
 import axios from 'axios'
 import { Grid } from '@material-ui/core'
 import { FaUserAlt, FaUsers, FaImages, FaExclamationCircle, FaHome, FaUser, FaAngleRight, FaAngleLeft} from 'react-icons/fa'
@@ -18,13 +18,14 @@ import Button from '@restart/ui/esm/Button'
 import Profile from "../../assets/profile.jfif"
 import { LeftNavigation } from '../../Components'
 
-const Connections =()=>{
+const Follows =()=>{
 const {loggedIn, setLoading, loading, currentUser, currentUserParsed, allUsers, postcreated, setPostCreated, setTempAllusers,
 tempAllUsers, setNewCurrentUser, setUserClicked, userClicked, setFetchedUser, fetchedUser, setTestValue, testValue} = UseAppContext()
 const [formValue, setFormValue] = useState('')
 const [error, setError] = useState({status : false, msg:''})
 const {_id : userId, username : userUsername, followings, followers, connections, connectionRequests} = JSON.parse(currentUser)
 const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
+const followurl = 'https://smart-job-search.herokuapp.com/api/v1/user/follow'
 const unFollowurl = 'https://smart-job-search.herokuapp.com/api/v1/user/unfollow'
 const getUserurl = `https://smart-job-search.herokuapp.com/api/v1/user/${userId}/${userUsername}`
 const posturl = 'https://smart-job-search.herokuapp.com/api/v1/posts'
@@ -217,11 +218,11 @@ setRandomUsers(allUsers)
 },[allUsers])
 
 
-let userSentConnectionRequests = currentUserParsed.sentConnectionRequests ? currentUserParsed.sentConnectionRequests : []
-let userReceivedConnectionRequests = currentUserParsed.receivedConnectionRequests ? currentUserParsed.receivedConnectionRequests : []
-let userConnections = currentUserParsed.connections ? currentUserParsed.connections : []
+let userFollowers = currentUserParsed.followers ? currentUserParsed.followers : []
+let userFollowings = currentUserParsed.followings ? currentUserParsed.followings : []
+// let userConnections = currentUserParsed.connections ? currentUserParsed.connections : []
 
-console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequests, currentUserParsed)
+
     const sentConnectionRequestsArray =  allUsers.filter(user =>{
         if(currentUserParsed.sentConnectionRequests){
             if(currentUserParsed.sentConnectionRequests.includes(user._id)){
@@ -250,120 +251,141 @@ console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequest
         }
         })        
 
-        // console.log('connectionRequestsArray', connectionRequestsArray )
+    let newUserFollowings  = []
+    if(currentUserParsed){
+         newUserFollowings = currentUserParsed.followings
+    }
+
+        //FOLLOW USER
+const follow =async(e, id, followedUsername)=>{
+    e.preventDefault()
+    const {_id , username} = JSON.parse(currentUser)
+   
+        const options = {
+            url: `${followurl}/${id}/${followedUsername}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                username : username                
+            }
+        } 
+       
+        const result = await axios(options)
+        
+        if(result.data.response == "Success"){
+          
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            
+            if(data){
+                // window.location.href='/' 
+                // setValues(true, data)
+
+                setTestValue(!testValue)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'An error occured while following'})  
+        }       
+        
+    // }
+
+}
+
+
+
+//UNFOLLOW USER
+const unfollow =async(e, id, followedUsername)=>{
+    e.preventDefault()
+    const {_id , username} = currentUserParsed
+   
+        const options = {
+            url: `${unFollowurl}/${id}/${followedUsername}`,
+            method : "PATCH",
+            headers : {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json;charset=UTF-8"
+            },
+            data:{
+                userId : _id,
+                userUsername : username                
+            }
+        } 
+       
+        const result = await axios(options)
+        console.log(result)
+        if(result.data.response == "Success"){
+            const reponse_2 = await axios(getUserurl)
+            const {data} = reponse_2.data
+            if(data){
+                setTestValue(!testValue)
+                setPostCreated(true)
+                setTimeout(()=>{
+                    setPostCreated(false)
+                }, 3000)
+            } 
+        }else{
+            setAlertMsg({status : true, msg : 'An error occured while following'})  
+        }       
+        
+    // }
+
+}
+
+
     return <>
     <Topbar />
     <Sidebar />
     <Backdrop />
-    <Grid className='connections' container > 
+    <Grid className='follows' container > 
         <Grid className='' item xs ={false} sm={false} md={2} >
         <LeftNavigation />   
         </Grid> 
-            <Grid className='connections-center' xs={12} item sm={12} md={10} > 
-            <h2>Connections</h2>
-            <h4>People you can connect with</h4><br />
-            <div className='connections-center-inner' >
+            <Grid className='follows-center' xs={12} item sm={12} md={10} > 
+            <h2>Followers({userFollowers.length})</h2>
+            <h4>People following you</h4><br />
+            <div className='follows-center-inner' >
             {
             tempAllUsers &&
             tempAllUsers.map(allUser => {
                 const {_id : id, username} = allUser
-                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && currentUserParsed && !currentUserParsed.connections.includes(allUser._id) && !currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
-                        return <div key={id} className='connetions-box'>
+                const {_id, followers} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
+                        if(allUser._id !== _id && currentUserParsed && userFollowers.includes(allUser._id)) {
+                        return <div key={id} className='follows-box'>
                             <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
-                                <img src={Profile} alt={username} className="connections-img"/>
+                                <img src={Profile} alt={username} className="follows-img"/>
                             </Link>
-                            <div className='connections-name'>{username}</div>
-                            <form>
-                                <br/>
-                                {/* {
-                                    !sentConnectionRequestsArray.includes(allUser._id) && !connectionsArray.includes(allUsers._id) && !receivedConnectionRequestsArray.includes(allUser._id) &&
-                                } */}
-                                <button onClick={(e)=>connectRequest(e, id, username)} className='connect-btn'>
-                                    { !currentUserParsed.sentConnectionRequests.includes(allUser._id) ? `Connect Request` : 
-                                    !currentUserParsed.receivedConnectionRequests.includes(allUser._id) ? `Cancel Request` : null}
-                                </button>
-                            </form>
+                            <div className='follows-name'>{username}</div>
                         </div>
                         }
                 })
             }
             </div>
-            <div className='button-nav'>
-            <button className='more-btn' onClick={()=>setRandomUsers(allUsers)}>Find Random Users</button>
-            </div>
-            <h4> Received Connection Requests ({userReceivedConnectionRequests.length})</h4>
+            <h2>Followings({userFollowings.length})</h2>
+            <h4>People you Follow </h4>
             <br />
-        <div className='connections-center-inner' >
+            <div className='follows-center-inner' >
             {
             tempAllUsers &&
             tempAllUsers.map(allUser => {
                 const {_id : id, username} = allUser
-                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && currentUserParsed.receivedConnectionRequests.includes(allUser._id)){
-                        return <div key={id} className='connetions-box'>
+                const {_id, followings} = currentUserParsed.followings ? currentUserParsed : JSON.parse(currentUser)
+                        if(allUser._id !== _id && currentUserParsed && userFollowings.includes(allUser._id)){
+                        return <div key={id} className='follows-box'>
                             <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
-                                <img src={Profile} alt={username} className="connections-img"/>
+                                <img src={Profile} alt={username} className="follows-img"/>
                             </Link>
-                            <div className='connections-name'>{username}</div>
+                            <div className='follows-name'>{username}</div>
                             <form>
-                                <br/>
-                                <div className='connect-response'>
-                                <button onClick={(e)=>acceptConnectRequest(e, id, username)} className='connect-btn2'>
-                                    Accept
-                                </button>
-                                <button onClick={(e)=>declineConnectRequest(e, id, username)} className='connect-btn2'>
-                                    Decline
-                                </button>
-                                </div>
-                            </form>
-                        </div>
-                        }
-                })
-            }
-            </div>
-             <h4> Sent Connection Requests ({userSentConnectionRequests.length})</h4>
-            <div className='connections-center-inner' >
-            {
-            tempAllUsers &&
-            tempAllUsers.map(allUser => {
-                const {_id : id, username} = allUser
-                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && currentUserParsed.sentConnectionRequests.includes(allUser._id)){
-                        return <div key={id} className='connetions-box'>
-                            <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
-                                <img src={Profile} alt={username} className="connections-img"/>
-                            </Link>
-                            <div className='connections-name'>{username}</div>
-                            <form>
-                                <br/>
-                                <button onClick={(e)=>connectRequest(e, id, username)} className='connect-btn3'>
-                                    Cancel
-                                </button>
-                            </form>
-                        </div>
-                        }
-                })
-            }
-            </div>
-            <h3>Connections ({connectionsArray.length})</h3>
-             <div className='connections-center-inner' >
-            {
-            tempAllUsers &&
-            tempAllUsers.map(allUser => {
-                const {_id : id, username} = allUser
-                const {_id, connections} = currentUserParsed.connections ? currentUserParsed : JSON.parse(currentUser)
-                        if(allUser._id !== _id && currentUserParsed.connections.includes(allUser._id)){
-                        return <div key={id} className='connetions-box'>
-                            <Link to={`/userprofile/${allUser._id}/${username}`} onClick={()=>setUserClicked(!userClicked)}>
-                                <img src={Profile} alt={username} className="connections-img"/>
-                            </Link>
-                            <div className='connections-name'>{username}</div>
-                            <form>
-                                <br/>
-                                <button onClick={(e)=>disconnectRequest(e, id, username)} className='connect-btn3'>
-                                    Disconnect
-                                </button>
+                                <button onClick={(e)=>unfollow(e, id, username)} className='follow-btn2'>
+                                    {newUserFollowings  && newUserFollowings.includes(allUser._id) ? `Unfollow` : `Follow`}</button>
                             </form>
                         </div>
                         }
@@ -375,4 +397,4 @@ console.log('now par',userSentConnectionRequests,  userReceivedConnectionRequest
         </>
 }
 
-export default Connections
+export default Follows

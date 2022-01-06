@@ -9,7 +9,8 @@ const SETCUSERFOLLOWINGS = "SETCUSERFOLLOWINGS"; const SETNEWTEMPUSER = 'SETNEWT
 const POSTCREATED = 'POSTCREATED'; const SETSIDEBAR = 'SETSIDEBAR' ; const USERCLICKED = 'USERCLICKED';
 const SETFETCHEDUSER = 'SETFETCHEDUSER'; const COMMENTSENT = 'COMMENTSENT';
 const CURRENTUSERPARSED = 'CURRENTUSERPARSED' ; const TESTVALUE = 'TESTVALUE'; const LAZYLOADING = 'LAZYLOADING';
-const SETCHATUSERNAME = 'SETCHATUSERNAME'; const SETREPLYSENT = 'SETREPLYSENT'
+const SETCHATUSERNAME = 'SETCHATUSERNAME'; const SETREPLYSENT = 'SETREPLYSENT';
+const SCROLLINTOVIEW = "SCROLLINTOVIEW" 
 
 
 const getLoggedIn = ()=>{
@@ -66,7 +67,9 @@ const initialState = {
 
     commentSent : false,
     replySent : false,
-    testValue : false
+    testValue : false,
+
+    scrollIntoViewValue : false
 }
 
 export const AppProvider = ({children})=>{
@@ -291,11 +294,15 @@ const setReplySent = (value)=>{
     dispatch({type : SETREPLYSENT, payload : value})
 }
 
+//scroll-into-view function
+const setScrollIntoViewValue = (value)=>{
+    dispatch({type : SCROLLINTOVIEW, payload : value })
+}
 
     return <AppContext.Provider value={{
         ...state, setLoading, setLazyLoading, setCurrentUser, setLoggedIn, setNewCurrentUser, 
         setTempAllusers, setPostCreated, openSidebar, setUserClicked, setFetchedUser, 
-        setTimelinePosts, setCommentSent,  setTestValue, setChatUser, setReplySent
+        setTimelinePosts, setCommentSent,  setTestValue, setChatUser, setReplySent, setScrollIntoViewValue
     }}>
     {children}
     </AppContext.Provider>

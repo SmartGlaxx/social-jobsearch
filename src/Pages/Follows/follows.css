@@ -1,15 +1,15 @@
-.connections{
+.follows{
     display: flex;
     color: var(--color4);
     
 }
-/* .connections-left{
-    padding: var(--section-padding);
-} */
-.connections-center{
+.follows-left{
+    /* padding: var(--section-padding); */
+}
+.follows-center{
     padding: var(--section-padding);
 }
-.connections-center-inner{
+.follows-center-inner{
     display: flex;
     /* grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); */
     /* grid-gap: 4rem; */
@@ -19,19 +19,19 @@
     height: 11rem;
     width: 100%;
 }
-.connetions-box{
+.follows-box{
     width: 6rem;
     margin: 0 0.2rem;
     /* background: green; */
 }
-.connections-img{
-    border-radius: 50%;
+.follows-img{
+    border-radius: 10%;
     width: 6rem;
     height: 6rem;
     /* margin:0.3rem; */
     object-fit: cover;
 }
-.connections-name{
+.follows-name{
     position: absolute;
     color:var(--color4);
     top: 6.5rem;
@@ -43,7 +43,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.connect-btn{
+.follows-btn{
     /* position: absolute; */
     bottom: 0.5rem;
     cursor: pointer;
@@ -55,7 +55,7 @@
     /* margin-left: 0.8rem; */
     border: 1px solid var(--background-color-2);
 }
-.connect-btn2{
+.follows-btn2{
     /* position: absolute; */
     bottom: 0.5rem;
     cursor: pointer;
@@ -67,7 +67,7 @@
     /* margin-left: 0.8rem; */
     border: 1px solid var(--background-color-2);
 }
-.connect-btn3{
+.follows-btn3{
     bottom: 0.5rem;
     cursor: pointer;
     padding: var(--btn-padding-4);
@@ -98,6 +98,6 @@
 .more-btn:hover{
     background: var(--background-color-2);
 }
-.connect-response{
+.follows-response{
     display: flex;
 }

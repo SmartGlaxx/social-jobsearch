@@ -36,13 +36,11 @@ const setPostData = (value1, value2)=>{
 const setFormValue = (e)=>{
     const name = e.target.name
     const value = e.target.value
-    console.log(name)
     setFormData(prev =>{
         return {...prev, [name]: value}
     })
 }
 
-console.log(formData)
 
 const selectPostPic = (e)=>{
     e.preventDefault()
@@ -110,7 +108,7 @@ const sendMessage = async(e)=>{
  
         if(response === 'Success' && formatedMessage){ 
             setPostData(true, "Your post has been submited")
-             window.location.href = `/chat/${_id}/${username}/${recipientId}`
+             window.location.href = `/chat/${_id}/${username}/${recipientId}/${recipientUsername}`
             
         }else if(response === 'Fail'){
             const {message} = result2.data
@@ -153,7 +151,7 @@ const sendMessage = async(e)=>{
                 })
                 setPostData(true, "Your post has been submited")
                 
-                window.location.href = `/chat/${_id}/${username}/${recipientId}`
+                window.location.href = `/chat/${_id}/${username}/${recipientId}/${recipientUsername}`
             }else if(response === 'Fail'){
                 const {message} = result.data
                 setError({status : true, msg : message})
@@ -230,7 +228,7 @@ if(loggedIn == false){
                 </div>
                 </Grid>
                 }
-            <Grid item xs={false} sm={2} className="compose-left">
+            <Grid item xs={false} sm={2} className="">
                 <LeftNavigation />
             </Grid>
             <Grid item xs={12} sm={8} className="compose-center">

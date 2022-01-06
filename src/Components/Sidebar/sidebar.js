@@ -44,12 +44,12 @@ const Sidebar =()=>{
                     Home
                     </li>
                     <li className="sideTop-li">
-                    <FaUserFriends className="icons"  size='15'/>
-                    Followings
-                    </li>
-                    <li className="sideTop-li">
                     <FaPeopleArrows className="icons"  size='15'/>
                     Connections
+                    </li>
+                    <li className="sideTop-li">
+                    <FaUserFriends className="icons"  size='15'/>
+                    Follows
                     </li>
                     <li className="sideTop-li">
                     <FaBriefcase className="icons"  size='15'/>

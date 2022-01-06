@@ -14,13 +14,14 @@ import { LeftNavigation } from '../../Components'
 
 const Chat = ()=>{
 
-    const {loggedIn, setTestValue, currentUserParsed, allUsers, setChatUser, chatUser, replySent } = UseAppContext()
+    const {loggedIn, setTestValue, currentUserParsed, allUsers, setChatUser, chatUser, 
+        replySent, setScrollIntoViewValue, scrollIntoViewValue } = UseAppContext()
     const [error, setError] = useState({status : false, msg:''})
     const [alertMsg, setAlertMsg] = useState({status : false, msg : ''})
     const [messageImagePreview, setMessageImagePreview] = useState('')
     const [messageImage, setMessageImage] = useState('')
     const [postPreviewBox, setPostPreviewBox] = useState(false)
-    // const [fetchedOtherUser, setFetchedOtherUser] = useState({})
+    const elmnt = document.getElementById("content");
     const [chatCreated, setChatCreated] = useState(false)
     const [messageImagePreviewBox, setMessageImagePreviewBox] = useState(false)
     const msgImgurl = 'https://smart-job-search.herokuapp.com/api/v1/messages'
@@ -105,6 +106,7 @@ const selectMessagePic = (e, value1, value2)=>{
     setFormData({userID : value1, userName : value2})
 }
 
+
 useEffect(()=>{
     if(messageImage){
         const fileReader = new FileReader()
@@ -137,7 +139,7 @@ const sendMessage = async(e)=>{
     
     const {userID : recipientId, userName : recipientUsername} = formData
     const url = `https://smart-job-search.herokuapp.com/api/v1/messages/${recipientId}/${recipientUsername}`
-// console.log('formData',formData, currentUserParsed)
+
     if(!formData.message && ! messageImage){
         return 
     }
@@ -150,7 +152,7 @@ const sendMessage = async(e)=>{
     const {src : imgSrc} = result.data.image
     let options = {}
     const {userID : recipientId, userName : recipientUsername} = formData
-    console.log(recipientUsername, recipientId)
+    
     if(formData.message){
          options = {
             url: url,
@@ -208,7 +210,6 @@ const sendMessage = async(e)=>{
                 setError({status : false, msg :''})
             }, 4000)
         }
-        console.log(recipientUsername)
             const options = {
                 url: url,
                 method : "POST",
@@ -229,8 +230,9 @@ const sendMessage = async(e)=>{
             const {formatedMessage, response} = result.data
            
             if(response === 'Success'){ 
-                const elmnt = document.getElementById("content");
+                
                setTimeout(() => {
+                const elmnt = document.getElementById("content");
                 elmnt.scrollIntoView();   
                }, 1000);
                 setPostData(true, "Your post has been submited")
@@ -290,14 +292,35 @@ const setMessageImgePicture = (value)=>{
     setTestValue(value)
 }
 
+useEffect(()=>{
+    setTimeout(() => {
+        const elmnt = document.getElementById("content");
+        elmnt.scrollIntoView();   
+    }, 1000);
+}, [])
+
+
+// setTimeout(() => {
+//     // const elmnt = document.getElementById("content");
+//     // elmnt.scrollIntoView();   
+//     setScrollIntoViewValue(false)
+// }, 3000);
+
+useEffect(()=>{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    const scrollIntoViewFunc = ()=>{
+        setTimeout(() => {
+            const elmnt = document.getElementById("content");
+            elmnt.scrollIntoView();   
+        }, 1000);
+    }
+    scrollIntoViewFunc()
+},[scrollIntoViewValue])
+
+
 if(loggedIn == false){
     return window.location.href = '/login'
 }
 
-setTimeout(() => {
-    const elmnt = document.getElementById("content");
-    elmnt.scrollIntoView();   
-}, 1000);
 if(otherUsername){
     chatUsername = otherUsername.slice(0,1).toUpperCase().concat(otherUsername.slice(1).toLowerCase())
 }
@@ -322,7 +345,7 @@ const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
                 </div>
                 </Grid>
             }
-            <Grid item xs={false} sm={3} className="chat-left">
+            <Grid item xs={false} sm={3} className="">
                 <LeftNavigation />
             </Grid>
             <Grid item xs={12} sm={6} className="chats-container" >

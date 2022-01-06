@@ -87,16 +87,13 @@ if(loggedIn == false){
     return window.location.href = '/login'
 }
 
-console.log('userUniqueIds', userUniqueIds)
-
-
 
     return <div>
         <Topbar />
         <Sidebar />
         <Backdrop />
         <Grid container>
-            <Grid item xs={false} sm={2} className="inbox-left">
+            <Grid item xs={false} sm={2} className="">
                 <LeftNavigation />
             </Grid>
             <Grid item xs={12} sm={8} className="inbox-center">

@@ -283,7 +283,7 @@ const {_id : idCurrent , username : usernameCurrent} = currentUserParsed
     <Sidebar />
     <Backdrop />
     <Grid className='homepage' container > 
-         <Grid className='homepage-left' item xs={false} sm={3} >
+         <Grid className='' item xs={false} sm={3} >
            <LeftNavigation />
         {/*    <div className='homepage-left-inner' >
                 <div className='homepage-left-top'>
