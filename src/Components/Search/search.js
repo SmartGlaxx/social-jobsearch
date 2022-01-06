@@ -1,5 +1,5 @@
 
-import FuzzySearch from 'fuzzy-search'; // Or: var FuzzySearch = require('fuzzy-search');
+// import FuzzySearch from 'fuzzy-search'; // Or: var FuzzySearch = require('fuzzy-search');
 import { UseAppContext } from '../../Contexts/app-context';
 
 
